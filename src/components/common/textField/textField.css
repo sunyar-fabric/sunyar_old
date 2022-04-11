@@ -1,0 +1,55 @@
+label.textField {
+    margin:5px 0;
+    position:relative;
+    width: 100%;
+    font-size: 14px;
+    display:inline-block;
+  }
+    
+  .textField>span {
+    padding:5px;
+    pointer-events: none;
+    position:absolute;
+    right:0;
+    top:0;
+    transition: 0.2s;
+    transition-timing-function: ease;
+    transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    opacity:0.5;
+  }
+  
+  .textField>input {
+    padding:5px;
+    border: none;
+    width: 100%;
+
+    border-bottom: 1px solid #ccc;
+    outline: none;
+  }
+  
+  .textField>input:focus{
+    border-bottom: 2px solid rgb(95 209 220);
+    background-color: #f8f9fa!important;
+  }
+  
+  .textField>input:target{
+    border-bottom: 2px solid rgb(95 209 220);
+    background-color: #0862bd!important;
+  }
+  .textField>input:focus + span, .textField>input:not(:placeholder-shown) + span {
+    opacity:1;
+    transform: scale(0.8) translateY(-90%) translateX(40%);
+  }
+  
+  /* For IE Browsers */
+  .textField>input:focus + span, .textField>input:not(:-ms-input-placeholder) + span {
+    opacity:1;
+    transform: scale(0.6) translateY(-90%) translateX(40%);
+  }
+
+  select{
+    /* color: bisque; */
+    opacity: 0.46;
+    font-size: small;
+
+  }
