@@ -1,0 +1,51 @@
+.toast-main {
+    max-width: 400px;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    overflow-y: scroll;
+    max-height: 100vh;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    scrollbar-width: none;
+    z-index: 200000000000000000;
+}
+
+.toast-containter {
+    z-index: 200000000000000000;
+}
+
+.toast-main::-webkit-scrollbar {
+    display: none;
+}
+
+.mytoast {
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0px 0px 2px #ccc;
+    transition: all 0.5s;
+}
+
+.progress {
+    height: 3px !important;
+}
+
+.toast-detail {
+    font-weight: lighter;
+}
+
+@media only screen and (max-width: 480px) {
+    .toast-main {
+        width: 100vw;
+        max-width: 100vw;
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+    }
+    .mytoast {
+        border-radius: 0px;
+    }
+}

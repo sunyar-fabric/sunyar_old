@@ -1,0 +1,13 @@
+
+stages:         
+  - build
+
+build-job:       
+  stage: build
+  image: node:14
+  script:
+    - cd /home/sunyarWebAdmin && npm i --force && 
+    - docker build -t latest . && docker run -itd -p 3002:3002 -v /home/sunyarWebAdmin:/home  $image bash 
+   
+
+    

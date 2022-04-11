@@ -1,0 +1,22 @@
+image: node:14
+deploy-dev:
+    stage:deploy
+    only:
+    - development
+    script:
+      - cd /home/sunyar-server
+      - git reset --hard
+      - git clean -f
+      - git pull
+      - npm install
+      - npm run build
+    tags:
+     - dev-front
+change-dev:
+ stage:change
+ only:
+  - development
+ script:
+  - chown -R webapp. /var/www/*
+ tags:
+  - dev-front                          
