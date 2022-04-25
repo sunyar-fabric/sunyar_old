@@ -4,6 +4,7 @@
 
 const { Contract } = require('fabric-contract-api');
 const { persianToTimestamp } = require('./utility/timestamp')
+const crypto = require("crypto-js");
 
 class NeedyToPlan extends Contract {
 
@@ -11,50 +12,59 @@ class NeedyToPlan extends Contract {
     async CreateAsset(ctx, planHashCode, beneficiary) {
 
         const beneficiaryObj = JSON.parse(beneficiary)
-        const { beneficiaryHashCode: beneficiaryHashList, beneficiaryDuration } = beneficiaryObj
-        console.log('------',beneficiaryHashList,'--------');
-        //Existance plan
-        // const planExists = await this.AssetExists(ctx, planHashCode)
-        // if (!planExists) {
-        //     throw new Error('planHashCode is not founded in the ledger!')
-        // }
+        let { beneficiaryHashCode: beneficiaryHashList, beneficiaryDuration } = beneficiaryObj
 
-        // //Existance needy
+        // Existance plan
+        let planExists = await this.AssetExists(ctx, planHashCode)
+        if (!planExists) {
+            throw new Error('planHashCode is not founded in the ledger!')
+        }
 
-        // let invalidBeneficiaryList = []
-        // for (let beneficiaryHashCode of beneficiaryObj?.beneficiaryHashCode) {
-        //     let beneficiaryExists = await this.AssetExists(ctx, beneficiaryHashCode)
-        //     if (!beneficiaryExists) {
-        //         invalidBeneficiaryList.push(beneficiaryHashCode)
-        //     }
-        // }
-        // if (invalidBeneficiaryList.length > 0) {
-        //     return {
-        //         InvalidBeneficiaryHashList: invalidBeneficiaryList
-        //     }
-        // }
+        //Existance needy
+        let invalidBeneficiaryList = []
+        for (let beneficiaryHashCode of beneficiaryHashList) {
+            let beneficiaryExists = await this.AssetExists(ctx, beneficiaryHashCode)
+            if (!beneficiaryExists) {
+                invalidBeneficiaryList.push(beneficiaryHashCode)
+            }
+        }
+        if (invalidBeneficiaryList.length > 0) {
+            return {
+                InvalidBeneficiaryHashList: invalidBeneficiaryList
+            }
+        }
 
-        // //create beneficiaryDuration timestamp
-        // let date = beneficiaryObj?.beneficiaryDuration.split('/')
-        // let beneficiaryDuration = persianToTimestamp(parseInt(date[0]), parseInt(date[1]), parseInt(date[2]))
+        //create beneficiaryDuration timestamp
+        let date = beneficiaryDuration.split('/')
+        beneficiaryDuration = persianToTimestamp(parseInt(date[0]), parseInt(date[1]), parseInt(date[2]))
 
-        // const asset = {
-        //     needysList: beneficiaryObj?.beneficiaryHashCode,
-        //     beneficiaryDuration,
-        // };
+        const asset = {
+            planHashCode,
+            needysList: beneficiaryHashList,
+            beneficiaryDuration,
+        };
 
-        // await ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(asset)));
-        // // const assignedNeedysToPlan = await ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(asset)));
-        // // AssigneNeedyToPlan = JSON.parse(AssigneNeedyToPlan.toString())
-        // // console.log('-------------****------------', assignedNeedysToPlan);
-        // return 'Needys successfully are assigned to plan';
+        await ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(asset)));
+        // AssigneNeedyToPlan = JSON.parse(AssigneNeedyToPlan.toString())
+        return 'Needys successfully are assigned to plan';
     }
 
     // ReadAsset returns the asset stored in the world state with given id.
-    async ReadAsset(ctx, beneficiaryHashCode) {
-        const assetJSON = await ctx.stub.getState(beneficiaryHashCode); // get the asset from chaincode state
+    async ReadAsset(ctx, planHashCode, planName, ownerOrgName) {
+        if (!planHashCode && !planName && !ownerOrgName) {
+            throw new Error(`input values can not be empty!`);
+        }
+        let hashInput = planName + ownerOrgName
+        hashInput = await crypto.SHA256(hashInput);
+        hashInput = hashInput.toString();
+        const assetJSON = await ctx.stub.getState(planName && ownerOrgName ? hashInput : planHashCode); // get the asset from chaincode state
         if (!assetJSON || assetJSON.length === 0) {
-            throw new Error(`The asset ${beneficiaryHashCode} does not exist`);
+            throw new Error(`This plan (${planHashCode}) does not have any needy!`);
+        }
+        assetJSON = assetJSON.toString()
+        let size = Object.keys(assetJSON).length;
+        if (size === 0) {
+            const assetJSON = await ctx.stub.getState(planName && ownerOrgName ? hashInput : planHashCode); // get the asset from chaincode state
         }
         return assetJSON.toString();
     }
