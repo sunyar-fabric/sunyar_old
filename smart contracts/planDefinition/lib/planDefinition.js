@@ -19,7 +19,7 @@ class PlanDefinition extends Contract {
         hashInput = await crypto.SHA256(hashInput);
         let planHashCode = await hashInput.toString();
         if (await this.AssetExists(ctx, planHashCode)) {
-            throw new Error('this plan already is created!')
+            throw new Error(`the plan ${planHashCode} already exists`)
         }
 
         //create DurationDate timestamp
