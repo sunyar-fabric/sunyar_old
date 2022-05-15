@@ -1,10 +1,10 @@
 
-
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
 const { persianToTimestamp } = require('./utility/timestamp')
 const crypto = require("crypto-js");
+const uuid = require('uuid');
 
 class PlanDefinition extends Contract {
 
@@ -26,6 +26,9 @@ class PlanDefinition extends Contract {
         let date = durationDateInput.split('/')
         let durationDate = await persianToTimestamp(parseInt(date[0]), parseInt(date[1]), parseInt(date[2]))
 
+        //create planId
+        let planId = uuid.v4()
+
         const asset = {
             PlanHashCode: planHashCode,
             ParentPlanHashCode: parentPlanHashCode,
@@ -34,7 +37,7 @@ class PlanDefinition extends Contract {
             DurationDate: durationDate,
         };
 
-        await ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(asset)));
+        await ctx.stub.putState(planId, Buffer.from(JSON.stringify(asset)));
         return JSON.stringify(asset);
     }
 
@@ -54,7 +57,6 @@ class PlanDefinition extends Contract {
             throw new Error(`The asset ${planHashCode} does not exist`);
         }
 
-
         //create key hash code
         let hashInput = planNameInput + ownerOrgNameInput;
         hashInput = await crypto.SHA256(hashInput);
@@ -68,7 +70,6 @@ class PlanDefinition extends Contract {
         durationDate[0] = await persianToTimestamp(parseInt(date[0]), parseInt(date[1]), parseInt(date[2]))
         durationDate[1] = await persianToTimestamp(parseInt(date[0]), parseInt(date[1]), parseInt(date[2]))
 
-
         // overwriting original asset with new asset
         const updatedAsset = {
             PlanHashCode: planHashCode,
@@ -78,10 +79,6 @@ class PlanDefinition extends Contract {
         };
         return ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(updatedAsset)));
     }
-
-
-
-
 
     // DeleteAsset deletes an given asset from the world state.
     async DeleteAsset(ctx, planHashCode) {
@@ -98,27 +95,41 @@ class PlanDefinition extends Contract {
         return assetJSON && assetJSON.length > 0;
     }
 
+    // GetAllPlans returns all plans found in the world state.
+    async GetAllPlans(ctx) {
+        const plans = await this.getAllPlanByOwnerOrgNameProperty(ctx)
+        return plans
+    }
 
+    async getAllPlanByOwnerOrgNameProperty(ctx) {
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.OwnerOrgName = {};
+        queryString.selector.OwnerOrgName.$gt = null
+        return await this.getQuery(ctx, queryString)
+    }
 
-    // GetAllAssets returns all assets found in the world state.
-    async GetAllAssets(ctx) {
-        const allResults = [];
-        // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
-        const iterator = await ctx.stub.getStateByRange('', '');
-        let result = await iterator.next();
-        while (!result.done) {
-            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
-            let record;
-            try {
-                record = JSON.parse(strValue);
-            } catch (err) {
-                console.log(err);
-                record = strValue;
+    async getQuery(ctx, queryString) {
+        let resultsIterator = await ctx.stub.getQueryResult(JSON.stringify(queryString));
+        let allResults = [];
+        let res = await resultsIterator.next();
+        while (!res.done) {
+            if (res.value && res.value.value.toString()) {
+                let jsonRes = {};
+                jsonRes.Key = res.value.key;
+                try {
+                    jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    jsonRes.Record = res.value.value.toString('utf8');
+                }
+                allResults.push(jsonRes);
             }
-            allResults.push({ Key: result.value.key, Record: record });
-            result = await iterator.next();
+            res = await resultsIterator.next();
         }
-        return JSON.stringify(allResults);
+        resultsIterator.close();
+        return allResults;
+
     }
 
 

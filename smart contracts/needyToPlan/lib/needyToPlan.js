@@ -1,10 +1,10 @@
 
-
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
 const { persianToTimestamp } = require('./utility/timestamp')
 const crypto = require("crypto-js");
+const _ = require('lodash');
 
 class NeedyToPlan extends Contract {
 
@@ -15,9 +15,9 @@ class NeedyToPlan extends Contract {
         let { beneficiaryHashCode: beneficiaryHashList, beneficiaryDuration } = beneficiaryObj
 
         // Existance plan
-        let planExists = await this.AssetExists(ctx, planHashCode)
-        if (!planExists) {
-            throw new Error('planHashCode is not founded in the ledger!')
+        const planExists = await this.getPlanByPlanHashCodeProperty(ctx, planHashCode)
+        if (planExists.length === 0) {
+            throw new Error(`the plan ${planHashCode} is not founded in the ledger!`)
         }
 
         //Existance needy
@@ -30,6 +30,7 @@ class NeedyToPlan extends Contract {
         }
         if (invalidBeneficiaryList.length > 0) {
             return {
+                msg: "operation is failed",
                 InvalidBeneficiaryHashList: invalidBeneficiaryList
             }
         }
@@ -38,15 +39,78 @@ class NeedyToPlan extends Contract {
         let date = beneficiaryDuration.split('/')
         beneficiaryDuration = persianToTimestamp(parseInt(date[0]), parseInt(date[1]), parseInt(date[2]))
 
-        const asset = {
-            planHashCode,
-            needysList: beneficiaryHashList,
-            beneficiaryDuration,
-        };
+        // let assetJSON = await ctx.stub.getState(planHashCode); // get the asset from chaincode state
+        // if (Object.keys(assetJSON).length > 0) {
+        //     assetJSON = JSON.parse(assetJSON.toString())
+        //     const { needysList: oldNeedysHashList } = assetJSON
+        //     const newNeedysHashList = _.difference(beneficiaryHashList, oldNeedysHashList)
+        //     if (newNeedysHashList.length > 0) {
+        //         for (let needy of newNeedysHashList) {
+        //             let assetJSON = await ctx.stub.getState(needy);
+        //             assetJSON = JSON.parse(assetJSON.toString())
+        //             if (assetJSON?.IsActive == false) {
+        //                 invalidBeneficiaryList.push(needy)
+        //             }
+        //         }
+        //         if (invalidBeneficiaryList.length > 0) {
+        //             return { InvalidBeneficiaryHashList: invalidBeneficiaryList }
+        //         }
+        //         oldNeedysHashList.map(needy => newNeedysHashList.push(needy))
+        //         beneficiaryHashList = [...newNeedysHashList]
+        //     } else {
+        //         return { msg: `the beneficiaryHashList already added to this plan(${planHashCode}) ` }
+        //     }
+        // }
 
-        await ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(asset)));
-        // AssigneNeedyToPlan = JSON.parse(AssigneNeedyToPlan.toString())
-        return 'Needys successfully are assigned to plan';
+        // const asset = {
+        //     planHashCode,
+        //     needysList: beneficiaryHashList,
+        //     beneficiaryDuration,
+        // };
+
+        // const result = await ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(asset)));
+        // return JSON.stringify(result);
+
+        // Get beneficiarys are assigned to the plan
+        const beneficiarys = await this.getBeneficiarysByPlanHashCodeProperty(ctx, planHashCode)
+        if (beneficiarys.length !== 0) {
+            let oldBeneficiarys = []
+            for (const element of beneficiarys) {
+                oldBeneficiarys.push(element.Record.beneficiaryHashCode)
+            }
+            const newBeneficiarys = _.difference(beneficiaryHashList, oldBeneficiarys)
+            if (newBeneficiarys.length > 0) {
+                for (let needy of newBeneficiarys) {
+                    let assetJSON = await ctx.stub.getState(needy);
+                    assetJSON = JSON.parse(assetJSON.toString())
+                    if (assetJSON?.IsActive == false) {
+                        invalidBeneficiaryList.push(needy)
+                    }
+                }
+                if (invalidBeneficiaryList.length > 0) {
+                    return { InvalidBeneficiaryHashList: invalidBeneficiaryList }
+                }
+                oldBeneficiarys.map(needy => newBeneficiarys.push(needy))
+                beneficiaryHashList = [...newBeneficiarys]
+            } else {
+                return { msg: `the beneficiaryHashList already added to this plan(${planHashCode})` }
+            }
+        }
+
+        for (let beneficiaryHash of beneficiaryHashList) {
+            let key = `${beneficiaryHash} ${planHashCode}`
+            const asset = {
+                beneficiaryDuration,
+                planHashCode,
+                beneficiaryHashCode: beneficiaryHash
+            }
+            await ctx.stub.putState(key, Buffer.from(JSON.stringify(asset)));
+        }
+        const asset = {
+            msg: "operation is done",
+            InvalidBeneficiaryHashList: []
+        }
+        return JSON.stringify(asset);
     }
 
     // ReadAsset returns the asset stored in the world state with given id.
@@ -54,19 +118,51 @@ class NeedyToPlan extends Contract {
         if (!planHashCode && !planName && !ownerOrgName) {
             throw new Error(`input values can not be empty!`);
         }
+
         let hashInput = planName + ownerOrgName
         hashInput = await crypto.SHA256(hashInput);
         hashInput = hashInput.toString();
-        const assetJSON = await ctx.stub.getState(planName && ownerOrgName ? hashInput : planHashCode); // get the asset from chaincode state
-        if (!assetJSON || assetJSON.length === 0) {
-            throw new Error(`This plan (${planHashCode}) does not have any needy!`);
+        const hash = planName && ownerOrgName ? hashInput : planHashCode
+
+        // Existance plan
+        const planExists = await this.getPlanByPlanHashCodeProperty(ctx, hash)
+        if (planExists.length === 0) {
+            throw new Error(`the plan ${hash} is not founded in the ledger!`)
         }
-        assetJSON = assetJSON.toString()
-        let size = Object.keys(assetJSON).length;
-        if (size === 0) {
-            const assetJSON = await ctx.stub.getState(planName && ownerOrgName ? hashInput : planHashCode); // get the asset from chaincode state
+
+        let assetJSON = await this.getBeneficiarysByPlanHashCodeProperty(ctx, hash);
+
+        if (assetJSON.length > 0) {
+            let beneficiarysList = []
+            // let cashAssistanceDetailList = []
+            for (const el of assetJSON) {
+                beneficiarysList.push(el.Record.beneficiaryHashCode)
+            }
+            // console.log('-----*******------', beneficiarysList);
+            let result = {}
+            result.beneficiarys = []
+            for (const el of beneficiarysList) {
+                let assetJSON = await ctx.stub.getState(`${hash}${el}`);
+                assetJSON = JSON.stringify(assetJSON.toString())
+                result.beneficiarys.push({
+                    beneficiaryHashCode: hash,
+                    cashAssistanceDetail: assetJSON
+                })
+                // cashAssistanceDetailList.push(JSON.parse(assetJSON))
+            }
+            console.log('-----------', result);
+            return result
+
+            // let result = {}
+            // for (const el of object) {
+
+            // }
+
+        } else {
+            return { msg: `No beneficiary have been assigned to this plan ${hash}` }
         }
-        return assetJSON.toString();
+        // assetJSON = assetJSON.toString()
+        // return assetJSON;
     }
 
     // UpdateAsset updates an existing asset in the world state with provided parameters.
@@ -116,7 +212,7 @@ class NeedyToPlan extends Contract {
         return ctx.stub.deleteState(beneficiaryHashCode);
     }
 
-    // AssetExists returns true when asset with given planHashCode exists in world state.
+    // AssetExists returns true when asset with given id exists in world state.
     async AssetExists(ctx, id) {
         const assetJSON = await ctx.stub.getState(id);
         return assetJSON && assetJSON.length > 0;
@@ -144,6 +240,68 @@ class NeedyToPlan extends Contract {
         return JSON.stringify(allResults);
     }
 
+    // async getAssetByKey(ctx, key) {
+    //     let queryString = {};
+    //     queryString.selector = {};
+    //     queryString.selector.PlanHashCode = key;
+    //     let resultsIterator = await ctx.stub.getQueryResult(JSON.stringify(queryString));
+    //     let allResults = [];
+    //     let res = await resultsIterator.next();
+    //     while (!res.done) {
+    //         if (res.value && res.value.value.toString()) {
+    //             let jsonRes = {};
+    //             jsonRes.Key = res.value.key;
+    //             try {
+    //                 jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+    //             } catch (err) {
+    //                 console.log(err);
+    //                 jsonRes.Record = res.value.value.toString('utf8');
+    //             }
+    //             allResults.push(jsonRes);
+    //         }
+    //         res = await resultsIterator.next();
+    //     }
+    //     resultsIterator.close();
+    //     return allResults;
+    // }
+
+    async getPlanByPlanHashCodeProperty(ctx, key) {
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.PlanHashCode = key;
+        return await this.getQuery(ctx, queryString)
+    }
+
+    async getBeneficiarysByPlanHashCodeProperty(ctx, key) {
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.planHashCode = key;
+        return await this.getQuery(ctx, queryString)
+    }
+
+    async getQuery(ctx, queryString) {
+
+        let resultsIterator = await ctx.stub.getQueryResult(JSON.stringify(queryString));
+        let allResults = [];
+        let res = await resultsIterator.next();
+        while (!res.done) {
+            if (res.value && res.value.value.toString()) {
+                let jsonRes = {};
+                jsonRes.Key = res.value.key;
+                try {
+                    jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    jsonRes.Record = res.value.value.toString('utf8');
+                }
+                allResults.push(jsonRes);
+            }
+            res = await resultsIterator.next();
+        }
+        resultsIterator.close();
+        return allResults;
+
+    }
 
 }
 
