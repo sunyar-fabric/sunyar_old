@@ -8,7 +8,6 @@ import MainRouter from "./components/MainRouter";
 import ToastContainer from './components/toast/ToastContainer'
 
 function App() {
-//foo
   return (
     <div className="vh-100">
       <BrowserRouter>
