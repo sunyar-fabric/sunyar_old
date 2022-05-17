@@ -3,7 +3,7 @@
 > Live demo [_here_](https://www.example.com). <!-- If you have the project hosted somewhere, include the link here. -->
 
 ## Table of Contents
-* [General Info](#general-information)
+<!--* [General Info](#general-information) -->
 * [Server-main](#server-main)
 * [Smart Contracts](#smart-contracts)
 * [Sunyar Web Admin Main](#features)
