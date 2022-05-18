@@ -3,18 +3,20 @@ const  preventSqlInjection  = require('../../../../utility/fnPreventSqlInjection
 const  preventSqlInjectionV2  = require('../../../../utility/fnPreventSqlInjection').customInjection;
 
 
-const validateCreatePlan = async (body) => {
-    const schema = Joi.object().keys({
+const validateCreatePlan = async (body, language) => {
+    var schema = Joi.object().keys({
         planName: Joi.string().required().min(1).max(1000).trim()
         .custom((value, helper)=>{
             if(preventSqlInjection(value)){
                 return true
             }else {return helper.message("از کارکترهای غیر مجاز در نام طرح استفاده نکنید");}
-        }).messages({
+        })
+        .messages({
             'string.base': `نوع نام طرح صحیح نمی‌باشد`,
             'string.empty': `نام طرح اجباری است`,
             'any.required': `نام طرح اجباری است`
-        }),
+        })
+        ,
         description: Joi.string().allow(null,'')
         .custom((value, helper)=>{
             if(preventSqlInjection(value)){
@@ -50,26 +52,40 @@ const validateCreatePlan = async (body) => {
             'number.empty' : `تاریخ شروع طرح  اجباری است`
         }),
     });
+    const schemaEn = Joi.object().keys({
+        planName: Joi.string().required().min(1).max(1000).trim()
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        })
+        ,
+        description: Joi.string().allow(null,'')
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        }),
+        planNature: Joi.boolean().required(),
+        parentPlanId: Joi.number().integer().allow(null,"null"),
+        ////-------------------- blob checked ----------------
+        icon: Joi.allow(null,"null"),
+        fDate: Joi.date().required().timestamp(),
+        tDate: Joi.date().required().timestamp().greater(Joi.ref('fDate')),
+        neededLogin: Joi.boolean().required(),
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
-const validateUpdatePlan = async (body, planId) => {
+const validateUpdatePlan = async (body, planId, language) => {
     body.planId = planId;
-    const schema = Joi.object().keys({
+    var schema = Joi.object().keys({
         planId: Joi.number().integer().required().messages({
             'number.base': `نوع شناسه طرح صحیح نمی‌باشد`,
             'number.empty': `شناسه طرح اجباری است`,
             'any.required': `شناسه طرح اجباری است`
         }),
-        planName: Joi.string().required().min(1).max(1000).trim()
-        .custom((value, helper)=>{
-            if(preventSqlInjection(value)){
-                return true
-            }else {return helper.message("از کارکترهای غیر مجاز در نام طرح استفاده نکنید");}
-        }).messages({
-            'string.base': `نوع نام طرح صحیح نمی‌باشد`,
-            'string.empty': `نام طرح اجباری است`,
-            'any.required': `نام طرح اجباری است`
-        }),
+        planName: Joi.forbidden(),
         description: Joi.string().allow(null,"")
         .custom((value, helper)=>{
             if(preventSqlInjectionV2(value)){
@@ -105,10 +121,32 @@ const validateUpdatePlan = async (body, planId) => {
             'any.required': `ورودی اجباری است`
         }),
     });
-    return schema.validate(body);
+    const schemaEn = Joi.object().keys({
+        planId: Joi.number().integer().required(),
+        planName: Joi.string().required().min(1).max(1000).trim()
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        }),
+        description: Joi.string().allow(null,"")
+        .custom((value, helper)=>{
+            if(preventSqlInjectionV2(value)){
+                return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        }),
+        planNature: Joi.boolean().required(),
+        parentPlanId: Joi.number().integer().allow(null,"null"),
+        icon: Joi.string().max(15),
+        fDate: Joi.date().required().timestamp(),
+        tDate: Joi.date().required().timestamp().greater(Joi.ref('fDate')),
+        neededLogin: Joi.boolean().required()
+    });
+    schema = language.en? schemaEn: schema; 
+    return schema.validate(body, );
 };
-const validateLoadPlan = async (body) => {
-    const schema = Joi.object().keys({
+const validateLoadPlan = async (body, language) => {
+    var schema = Joi.object().keys({
         planId: Joi.number().integer().messages({
             'number.base': `نوع شناسه طرح صحیح نمی‌باشد`
         }).allow(null,""),
@@ -141,11 +179,26 @@ const validateLoadPlan = async (body) => {
             'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
         }).allow(null,"")
     });
+    var schemaEn = Joi.object().keys({
+        planId: Joi.number().integer().allow(null,""),
+        planName: Joi.string().min(1).max(1000)
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                return true
+            }else {return helper.message("Invalid characters are not allowed")}
+        }).allow(null,""),
+        planNature: Joi.boolean().allow(null,""),
+        parentPlanId: Joi.allow(null,"").allow(null,""),
+        fDate: Joi.date().timestamp().allow(null,""),
+        tDate: Joi.date().timestamp().greater(Joi.ref('fDate')).allow(null,""),
+        neededLogin: Joi.boolean().allow(null,"")
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateLoadPlanPaginate = async (body) => {
-    const schema = Joi.object().keys({
+const validateLoadPlanPaginate = async (body, language) => {
+    var schema = Joi.object().keys({
         page: Joi.number().integer().required().messages({
             'number.base': `ورودی صفحه صحیح نمی‌باشد`,
             'any.required': `ورودی صفحه اجباری است`
@@ -178,24 +231,42 @@ const validateLoadPlanPaginate = async (body) => {
             'date.timestamp': `نوع ورودی باید تایم‌استمپ باشد`,
             'data.greater': `زمان پایان طرح باید بزرگتر از زمان شروع باشد`
         }).allow(null,""),
-        neededLogin: Joi.boolean().messages({
-            'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
-        }).allow(null,"")
+        neededLogin: Joi.boolean().allow(null,"")
     });
+    var schemaEn = Joi.object().keys({
+        page: Joi.number().integer().required().allow(null,""),
+        planId: Joi.number().integer().allow(null,""),
+        planName: Joi.string().min(1).max(1000)
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        }).allow(null,""),
+        planNature: Joi.boolean().allow(null,""),
+        parentPlanId: Joi.number().integer().allow(null,""),
+        fDate: Joi.date().timestamp().allow(null,""),
+        tDate: Joi.date().timestamp().greater(Joi.ref('fDate')).allow(null,""),
+        neededLogin: Joi.boolean().allow(null,"")
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateDeletePlan = async (body) => {
-    const schema = Joi.object().keys({
+const validateDeletePlan = async (body, language) => {
+    var schema = Joi.object().keys({
         planId: Joi.number().integer().required().messages({
             'number.base': `نوع شناسه طرح صحیح نمی‌باشد`,
             'number.empty': `شناسه طرح اجباری است`,
             'any.required': `شناسه طرح اجباری است`
         })
     });
+    var schemaEn = Joi.object().keys({
+        planId: Joi.number().integer().required()
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
-
+ 
 module.exports = {
     validateCreatePlan,
     validateUpdatePlan,

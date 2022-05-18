@@ -10,7 +10,7 @@ const initialize = async () => {
 };
 
 const defineRoles = async () => {
-    try{
+    try{ 
         const Role = db.tblRole;
     await Role.bulkCreate([
     {roleId: 1, faName: "ادمین", enName: "ADMIN"},

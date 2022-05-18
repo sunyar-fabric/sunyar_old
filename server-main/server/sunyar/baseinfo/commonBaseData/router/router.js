@@ -16,7 +16,7 @@ const sunyarRouter = require('express').Router();
 
 sunyarRouter.get('/', (req, _, next) => authorizeRequest(req, ['ADMIN', 'AID', 'ACCOUNTANT'], next), async (req, res, next) => {
     try {
-        const { error } = await validateLoadBaseData(req.query)
+        const { error } = await validateLoadBaseData(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -32,7 +32,7 @@ sunyarRouter.get('/', (req, _, next) => authorizeRequest(req, ['ADMIN', 'AID', '
 
 sunyarRouter.get('/commonBaseBank', (req, _, next) => authorizeRequest(req, ['ADMIN', 'AID', 'ACCOUNTANT'], next) , async (req, res, next) => {
     try {
-        const { error } = await validateLoadBaseData(req.query)
+        const { error } = await validateLoadBaseData(req.query,  req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -48,7 +48,7 @@ sunyarRouter.get('/commonBaseBank', (req, _, next) => authorizeRequest(req, ['AD
 
 sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, 'ADMIN', next),(req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateCreateBaseData(req.body)
+        const { error } = await validateCreateBaseData(req.body,  req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -82,7 +82,7 @@ sunyarRouter.put('/:commonBaseDataId', (req, _, next) => authorizeRequest(req, '
     try {
         req.body.commonBaseDataId = req.params.commonBaseDataId
        
-        const { error } = await validateUpdateBaseData(req.body)
+        const { error } = await validateUpdateBaseData(req.body,  req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -111,7 +111,7 @@ sunyarRouter.put('/:commonBaseDataId', (req, _, next) => authorizeRequest(req, '
 
 sunyarRouter.delete('/:commonBaseDataId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateDeleteBaseData(req.params)
+        const { error } = await validateDeleteBaseData(req.params,  req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');

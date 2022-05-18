@@ -10,7 +10,7 @@ const {authorizeRequest} = require("../../../../cms/um/jwt/compositeServices/aut
 //---------------------------------------------------------------------------------------
 router.post('/systemForm', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateCreateSystemForm(req.body)
+        const { error } = await validateCreateSystemForm(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -26,7 +26,7 @@ router.post('/systemForm', (req, _, next) => authorizeRequest(req, 'ADMIN', next
 
 router.put('/systemForm/:systemFormId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateUpdateSystemForm(req.body, req.params.systemFormId)
+        const { error } = await validateUpdateSystemForm(req.body, req.params.systemFormId, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -43,7 +43,7 @@ router.put('/systemForm/:systemFormId', (req, _, next) => authorizeRequest(req, 
 
 router.get('/systemForm', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadSystemForm(req.query)
+        const { error } = await validateLoadSystemForm(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -59,7 +59,7 @@ router.get('/systemForm', (req, _, next) => authorizeRequest(req, 'ADMIN', next)
 
 router.delete('/systemForm/:systemFormId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateDeleteSystemForm(req.params);
+        const { error } = await validateDeleteSystemForm(req.params, req.language);
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -81,7 +81,7 @@ router.post('/permission', (req, _, next) => authorizeRequest(req, 'ADMIN', next
     try {
         for (let i = 0; i < req.body.permission.length; i++) {
             let body = req.body.permission[i];
-            const { error } = await validateAssignPermissionToRole(body)
+            const { error } = await validateAssignPermissionToRole(body, req.language)
             if (error) {
                 const { details } = error;
                 const message = details.map(i => i.message).join(',');
@@ -98,7 +98,7 @@ router.post('/permission', (req, _, next) => authorizeRequest(req, 'ADMIN', next
 
 router.get('/permission', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadPermission(req.query)
+        const { error } = await validateLoadPermission(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -114,7 +114,7 @@ router.get('/permission', (req, _, next) => authorizeRequest(req, 'ADMIN', next)
 
 router.delete('/permission', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateDeletePermission(req.body);
+        const { error } = await validateDeletePermission(req.body, req.language);
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');

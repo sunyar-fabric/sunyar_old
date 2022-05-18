@@ -32,7 +32,7 @@ const verifyToken = async (context) => {
         }
         context = await getUserRoleByUserId(setContextInput(context, { userId: user.userId }))
         const roles = context.result;
-        const person = await getPersonInfo(setContextInput(context, user.personId)); 
+        const person = await getPersonInfo(setContextInput(context, {personId: user.personId})); 
         const personType = person.output.personType;
         context.result = { user, roles, personType}
         return context;

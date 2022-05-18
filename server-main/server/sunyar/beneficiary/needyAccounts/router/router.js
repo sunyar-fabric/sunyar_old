@@ -15,7 +15,7 @@ const sunyarRouter = require('express').Router();
 
 sunyarRouter.get('/', (req, _, next) => authorizeRequest(req, ["AID", "ACCOUNTANT"], next), async (req, res, next) => {
     try {
-        const { error } = await validateLoadNeedyAccounts(req.query)
+        const { error } = await validateLoadNeedyAccounts(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -29,9 +29,10 @@ sunyarRouter.get('/', (req, _, next) => authorizeRequest(req, ["AID", "ACCOUNTAN
     } catch (error) { next(error); }
 });
 
-sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ['AID'], next),async (req, res, next) => {
+
+sunyarRouter.post('/',(req, _, next) => authorizeRequest(req, ['AID'], next),async (req, res, next) => {
     try {
-        const { error } = await validateCreateNeedyAccounts(req.body)
+        const { error } = await validateCreateNeedyAccounts(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -69,7 +70,7 @@ sunyarRouter.put('/:needyAccountId', (req, _, next) => authorizeRequest(req, ['A
 
         req.body.needyAccountId = req.params.needyAccountId
 
-        const { error } = await validateUpdateNeedyAccounts(req.body)
+        const { error } = await validateUpdateNeedyAccounts(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -107,7 +108,7 @@ sunyarRouter.put('/:needyAccountId', (req, _, next) => authorizeRequest(req, ['A
 sunyarRouter.delete('/:needyAccountId', (req, _, next) => authorizeRequest(req, ['AID'], next),async (req, res, next) => {
     try {
 
-        const { error } = await validateDeleteNeedyAccounts(req.params)
+        const { error } = await validateDeleteNeedyAccounts(req.params, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');

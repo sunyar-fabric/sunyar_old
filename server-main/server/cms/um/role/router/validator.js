@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 /////-------------- Role Validator ----------------------------------------
 const validateCreateRole = async (body) => {
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     faName: Joi.string().required().min(1).max(20).messages({
       'string.base': `نوع ورودی صحیح نمی‌باشد`,
       'string.empty': `نام فارسی نقش اجباری است`,
@@ -16,12 +16,17 @@ const validateCreateRole = async (body) => {
       'any.required': `نام نقش اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    faName: Joi.string().required().min(1).max(20),
+    enName: Joi.string().required().min(1).max(20)
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateUpdateRole = async (body, roleId) => {
+const validateUpdateRole = async (body, roleId, language) => {
   body.roleId = roleId;
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     roleId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه نقش اجباری است`,
@@ -40,11 +45,17 @@ const validateUpdateRole = async (body, roleId) => {
       'any.required': `نام نقش اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    roleId: Joi.number().integer().required(),
+    faName: Joi.string().required().min(1).max(20),
+    enName: Joi.string().required().min(1).max(20)
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateLoadRole = async (query) => {
-  const schema = Joi.object().keys({
+const validateLoadRole = async (query, language) => {
+  var schema = Joi.object().keys({
     roleId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`
 
@@ -56,24 +67,34 @@ const validateLoadRole = async (query) => {
       'string.base': `نوع نام انگلیسی نقش صحیح نمی‌باشد`
     })
   });
+  var schemaEn = Joi.object().keys({
+    roleId: Joi.number().integer(),
+    faName: Joi.string().min(1).max(20),
+    enName: Joi.string().min(1).max(20)
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(query);
 }
 
-const validateDeleteRole = async (params) => {
-  const schema = Joi.object().keys({
+const validateDeleteRole = async (params, language) => {
+  var schema = Joi.object().keys({
     roleId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه نقش اجباری است`,
       'any.required': `شناسه نقش اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    roleId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(params);
 }
 
 /////-------------- AssignRoleToUSer Validator ----------------------------------------
 
-const validateAssignRoleToUser = async (body) => {
-  const schema = Joi.object().keys({
+const validateAssignRoleToUser = async (body, language) => {
+  var schema = Joi.object().keys({
     userId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `ورودی اجباری است`,
@@ -85,11 +106,16 @@ const validateAssignRoleToUser = async (body) => {
       'any.required': `شناسه نقش اجباری است`
     })
   });
+  var schema = Joi.object().keys({
+    userId: Joi.number().integer(),
+    roleId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateLoadAssignRoleToUser = async (body) => {
-  const schema = Joi.object().keys({
+const validateLoadAssignRoleToUser = async (body, language) => {
+  var schema = Joi.object().keys({
     assignRoleToUserId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
     }),
@@ -100,17 +126,27 @@ const validateLoadAssignRoleToUser = async (body) => {
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
     })
   });
+  var schemaEn = Joi.object().keys({
+    assignRoleToUserId: Joi.number().integer(),
+    userId: Joi.number().integer(),
+    roleId: Joi.number().integer()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateDeleteRolesFromUser = async (params) => {
-  const schema = Joi.object().keys({
+const validateDeleteRolesFromUser = async (params, language) => {
+  var schema = Joi.object().keys({
     assignRoleToUserId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `ورودی اجباری است`,
       'any.required': `ورودی اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    assignRoleToUserId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(params);
 }
 

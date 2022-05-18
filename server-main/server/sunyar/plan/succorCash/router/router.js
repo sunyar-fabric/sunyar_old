@@ -16,7 +16,7 @@ const sunyarRouter = require('express').Router();
 
 sunyarRouter.get('/',async (req, res, next) => {
     try {
-        const { error } = await validateLoadSuccorCash(req.query)
+        const { error } = await validateLoadSuccorCash(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -38,7 +38,7 @@ sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ["ACCOUNTANT", "A
             req.body.minPrice = english_digit(req.body.minPrice)
         }
         
-        const { error } = await validateCreateSuccorCash(req.body)
+        const { error } = await validateCreateSuccorCash(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -47,18 +47,18 @@ sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ["ACCOUNTANT", "A
 
         const {
             assignNeedyPlanId,
-            planId,
             neededPrice,
             minPrice,
-            description
+            description,
+            planId
         } = req.body;
 
         req.context.params = {
             assignNeedyPlanId,
-            planId,
             neededPrice,
             minPrice,
-            description
+            description,
+            planId
         };
         req.context = await wsCreateSuccorCash(req.context);
         res.json(req.context.result);
@@ -76,7 +76,7 @@ sunyarRouter.put('/:cashAssistanceDetailId', (req, _, next) => authorizeRequest(
             req.body.minPrice = english_digit(req.body.minPrice)
         }
 
-        const { error } = await validateUpdateSuccorCash(req.body)
+        const { error } = await validateUpdateSuccorCash(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -109,7 +109,7 @@ sunyarRouter.put('/:cashAssistanceDetailId', (req, _, next) => authorizeRequest(
 sunyarRouter.delete('/:cashAssistanceDetailId', (req, _, next) => authorizeRequest(req, ["ACCOUNTANT", "AID"], next),async (req, res, next) => {
     try {
 
-        const { error } = await validateDeleteSuccorCash(req.params)
+        const { error } = await validateDeleteSuccorCash(req.params, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');

@@ -1,34 +1,34 @@
-const GlobalExceptions = {
+const GlobalExceptionsEn = {
   ServiceError: {
     code: 1,
-    message: "خطایی سمت سرور رخ داده‌است",
+    message: "Ooops, internal sever error!",
     httpStatusCode: 500,
   },
   dependecyError: {
     code: 61,
-    message: "به ‌دلیل وابستگی امکان حذف وجود ندارد",
+    message: "Due to dependency item can't be deleted",
     httpStatusCode: 500,
   },
   //-- dbExceptions---
   db: {
     InputsNotUnique: {
       code: 3,
-      message: "مقادیر ورودی یکتا نیستند",
+      message: "Input values are not unique",
       httpStatusCode: 409,
     },
     InputNotValide: {
       code: 4,
-      message: "تایپ مقادیر ورودی صحیح نمی باشد",
+      message: "Input values are not valid",
       httpStatusCode: 409,
     },
     PrimaryKeyNotFound: {
       code: 5,
-      message: "شناسه خارجی موجود نمی باشد",
+      message: "Primary key not found",
       httpStatusCode: 404,
     },
     DataBaseError: {
       code: 6,
-      message: "خطای دیتابیس",
+      message: "Database error occured",
       httpStatusCode: 409,
     },
   },
@@ -36,25 +36,25 @@ const GlobalExceptions = {
   auth: {
     TokenExpired: {
       code: 7,
-      message: "مجددا وارد شوید",
+      message: "please sign in again",
       httpStatusCode: 401,
       httpStatusMessage: "Unauthorized",
     },
     WrongAccessToken: {
       code: 8,
-      message: "اطلاعات وارد شده اشتباه است",
+      message: "Access token is not valid",
       httpStatusCode: 401,
       httpStatusMessage: "Unauthorized",
     },
     AccessTokenError: {
       code: 9,
-      message: "خطای احراز",
+      message: "An unauthorized request",
       httpStatusCode: 401,
       httpStatusMessage: "Unauthorized",
     },
     waiting: {
       code: 10,
-      message: "کاربر گرامی بعد از چند دقیقه دیگر برای لاگین اقدام کنید",
+      message: "Too many requests, try to login later",
       httpStatusCode: 404,
       httpStatusMessage: "Unauthorized",
     },
@@ -63,22 +63,23 @@ const GlobalExceptions = {
   accessPermission: {
     FormNotFound: {
       code: 11,
-      message: "فرمی با این مشخصات یافت نشد",
+      message: "Cant't find a form with these specifications",
       httpStatusCode: 404,
     },
     FormUseAsSysParent: {
       code: 12,
-      message: "به‌دلیل وابستگی به عنوان فرم پدر، امکان حذف وجود ندارد",
+      message: "Due to dependency can't delete the system form as a parent",
       httpStatusCode: 404,
     },
     FormUseAsFK: {
       code: 13,
-      message: "به‌دلیل وابستگی فرم در مجوز دسترسی، امکان حذف وجود ندارد",
+      message:
+        "Due to access permision(s) dependency, can't delete the system form",
       httpStatusCode: 404,
     },
     PermissionNotFound: {
       code: 14,
-      message: "مجوز دسترسی‌ای با این مشخصات یافت نشد",
+      message: "Access permision not found",
       httpStatusCode: 404,
     },
   },
@@ -86,12 +87,12 @@ const GlobalExceptions = {
   jwt: {
     NotAuthorized: {
       code: 15,
-      message: "دسترسی موجود نمی‌باشد",
+      message: "Aceess is denied",
       httpStatusCode: 401,
     },
     WrongCredential: {
       code: 16,
-      message: "رمز وارد شده صحیح نمی باشد",
+      message: "Wrong credential",
       httpStatusCode: 401,
     },
     invalidAuthorizationHeader: {
@@ -101,12 +102,12 @@ const GlobalExceptions = {
     },
     Forbidden: {
       code: 18,
-      message: "دسترسی مجاز نمی باشد",
+      message: "Acess is forbidden",
       httpStatusCode: 403,
     },
     YouAID: {
       code: 19,
-      message: "شما مددکار هستید و نیتوانید به جز نیازمند شخصی اضافه کنید ",
+      message: "As an aid, you can't add any person except needy",
       httpStatusCode: 403,
     },
   },
@@ -114,17 +115,17 @@ const GlobalExceptions = {
   role: {
     RoleNotFound: {
       code: 20,
-      message: "نقشی با این مشخصات یافت نشد",
+      message: "Can't find role with these specifications",
       httpStatusCode: 404,
     },
     RoleUseAsFK: {
       code: 21,
-      message: "به دلیل وابستگی نقش، امکان حذف وجود ندارد",
+      message: "Role can't be deleted because it's already assigned to user(s)",
       httpStatusCode: 409,
     },
     AssignRoleToUserNotFound: {
       code: 22,
-      message: "نقش تخصیص داده‌شده‌ای به این کاربر یافت نشد",
+      message: "Cant't find the role specified as user's role assignment",
       httpStatusCode: 404,
     },
   },
@@ -132,37 +133,38 @@ const GlobalExceptions = {
   user: {
     PersonNotFound: {
       code: 23,
-      message: "شخصی با این مشخصات یافت نشد",
+      message: "Can't find person with these specifications",
       httpStatusCode: 404,
     },
     UserNotFound: {
       code: 24,
-      message: "نام کاربري یا کلمه عبور وارد شده نادرست است",
+      message: "Username or password is not correct",
       httpStatusCode: 404,
     },
     UserUseAsFK: {
       code: 25,
-      message: "به‌دلیل وابستگی کاربر، امکان حذف وجود ندارد",
+      message: "Due to dependency can't delete the user",
       httpStatusCode: 409,
     },
     WrongCredential: {
       code: 26,
-      message: "نام کاربري یا کلمه عبور وارد شده نادرست است",
+      message: "Username or password is not correct",
       httpStatusCode: 404,
     },
     UserExpired: {
       code: 27,
-      message: "کاربر گرامی، اکانت شما غیرفعال شده‌است، با ادمین تماس بگیرید",
+      message:
+        "Dear user, your account has been deactivated. Please contact admin.",
       httpStatusCode: 404,
     },
     UserAlreadyExists: {
       code: 28,
-      message: "نام کاربری قبلا در سیستم ثبت شده است",
+      message: "The username is already taken",
       httpStatusCode: 404,
     },
     profilesNotFound: {
       code: 29,
-      message: "پروفایل پیدا نشد!",
+      message: "Profile not found",
       httpStatusCode: 404,
     },
   },
@@ -170,52 +172,52 @@ const GlobalExceptions = {
   baseInfo: {
     commonBaseTypeIdNotFound: {
       code: 30,
-      message: "شناسه ای با این مشخصات یافت نشد",
+      message: "Common base type not found",
       httpStatusCode: 404,
     },
     commonBaseTypeIdUseAsFK: {
       code: 31,
-      message: "به ‌دلیل وابستگی  امکان حذف وجود ندارد",
+      message: "Due to dependency can't delete item",
       httpStatusCode: 409,
     },
     baseTypeTitleUnique: {
       code: 32,
-      message: "عنوان تکراری است",
+      message: "Title is already taken",
       httpStatusCode: 409,
     },
     baseTypeCodeUnique: {
       code: 33,
-      message: "کد تولید شده تکراری میباشد",
+      message: "Generated code is already taken",
       httpStatusCode: 409,
     },
     baseDataUnique: {
       code: 34,
-      message: "مقادیر ثابت یکتا نیستند",
+      message: "Base data is already taken",
       httpStatusCode: 409,
     },
     commonBaseDataIdNotFound: {
       code: 35,
-      message: "شناسه ای با این مشخصات یافت نشد",
+      message: "Common base data not found",
       httpStatusCode: 404,
     },
     charityAccountCardNumber: {
       code: 36,
-      message: "شماره کارت تکراری میباشد",
+      message: "Charity account card number is already taken",
       httpStatusCode: 409,
     },
     charityAccountAccountNumber: {
       code: 37,
-      message: "شماره حساب تکراری است",
+      message: "Charity account number is already taken",
       httpStatusCode: 409,
     },
     commonBaseDataIdUseAsFK: {
       code: 38,
-      message: "به ‌دلیل وابستگی امکان حذف وجود ندارد",
+      message: "Due to dependency can't delete common base data",
       httpStatusCode: 409,
     },
     charityAccountIdUseAsFK: {
       code: 39,
-      message: "به ‌دلیل وابستگی امکان حذف وجود ندارد",
+      message: "Due to dependency can't delete charity account",
       httpStatusCode: 409,
     },
   },
@@ -224,22 +226,23 @@ const GlobalExceptions = {
   operation: {
     overPayment: {
       code: 40,
-      message: "مقدار پرداختی از مقدار مورد نیاز بیشتر است",
+      message: "The payment value is more than needed",
       httpStatusCode: 400,
     },
     wrongPayment: {
       code: 41,
-      message: "کمکی جهت تسویه وجود ندارد!",
+      message:
+        "There is not enough donators's payments to submit the settlement",
       httpStatusCode: 400,
     },
     wrongLoadDonator: {
       code: 42,
-      message: "نیازمند یا اهدا کننده مشخص نیست",
+      message: "Donator is not specified",
       httpStatusCode: 404,
     },
     wrongLoadCharity: {
       code: 43,
-      message: "نیازمند  مشخص نیست",
+      message: "Needy is not specified",
       httpStatusCode: 404,
     },
   },
@@ -247,37 +250,37 @@ const GlobalExceptions = {
   beneficiary: {
     donatorError: {
       code: 44,
-      message: "خیری با این کد ملی ثبت شده است",
+      message: "Donator with the this national code is already registered",
       httpStatusCode: 404,
     },
     needyError: {
       code: 45,
-      message: "نیازمندی با این کد ملی ثبت شده است",
+      message: "Needy with the this national code is already registered",
       httpStatusCode: 409,
     },
     personalError: {
       code: 46,
-      message: "پرسنلی با این کدملی ثبت شده است",
+      message: "personnel with the this national code is already registered",
       httpStatusCode: 409,
     },
     personNotFound: {
       code: 47,
-      message: "چنین شخصی یافت نشد",
+      message: "The person not found",
       httpStatusCode: 409,
     },
     shebaNumberUnique: {
       code: 48,
-      message: "شماره شبا نیازمند تکراری میباشد",
+      message: "Needy SHEBA number is already taken",
       httpStatusCode: 409,
     },
     fieldsUniques: {
       code: 49,
-      message: " شماره حساب  تخصیص یافته به نیازمند تکراری است ",
+      message: "Needy account number is already taken",
       httpStatusCode: 409,
     },
     compareAccountNumber: {
       code: 50,
-      message: " شماره حساب وارد شده به شماره شبا ارتباطی ندارد ",
+      message: "SHEBA number and account number are irelevant",
       httpStatusCode: 409,
     },
   },
@@ -285,89 +288,90 @@ const GlobalExceptions = {
   plan: {
     PlanNotFound: {
       code: 51,
-      message: "طرحی با این مشخصات یافت نشد",
+      message: "Can't find plan with these specifications",
       httpStatusCode: 404,
     },
     PlanUseAsFK: {
       code: 52,
-      message: "به‌دلیل وابستگی طرح، امکان حذف وجود ندارد",
+      message: "Due to dependency can't delete the plan",
       httpStatusCode: 409,
     },
     PlanFDateTDate: {
       code: 53,
-      message: "تاریخ اختصاص نیازمند به طرح باید در بازه تاریخ طرح باشد",
+      message: "Needy assignment must be in plan's timespan",
       httpStatusCode: 409,
     },
     notFound: {
       code: 54,
-      message: "چنین رکوردی برای حذف موجود نیست",
+      message: "Needy to plan assignment not found",
       httpStatusCode: 409,
     },
     overMinPrice: {
       code: 55,
-      message: "حداقل مبلغ از مبلغ مورد نیاز بیشتر است",
+      message: "minimum  price is more than needed price",
       httpStatusCode: 409,
     },
     succorUnique: {
       code: 56,
-      message: "جزئیات پرداخت طرحی با چنین نیازمندی قبلا تعریف شده است ",
+      message:
+        "Succor cash for the specified needy and plan is already created",
       httpStatusCode: 409,
     },
   },
   sqlInjection: {
     code: 57,
-    message: "از کاراکتر های غیر مجاز استفاده نکنید! ",
+    message: "Invalid characters are detected in the request body",
     httpStatusCode: 401,
   },
   forgetMyPass: {
     NotAuthorized: {
       code: 47,
-      message: "دسترسی مجاز ندارید ",
+      message: "Username or password is incorrect",
       httpStatusCode: 401,
     },
   },
   bigBigFile: {
     code: 58,
-    message: "فایل ارسالی بزرگ است ",
+    message: "Uploaded file must be less than 100kb",
     httpStatusCode: 401,
   },
   assignRole: {
     iamDonator: {
       code: 59,
-      message: "امکان اضافه کردن نقش به خیر وجود ندارد!",
+      message: "Can't assign role to donator",
       httpStatusCode: 401,
     },
   },
   parentTime: {
     code: 60,
-    message: "زمان تخصیص طرح باید بین بازه زمانی طرح پدر باشد!",
+    message: "Plan's timespan must be between plan's parent timespan",
     httpStatusCode: 401,
   },
-  middleware:{
+  middleware: {
     code: 62,
-    message: "خطای میان افزار",
+    message: "Middleware error",
     httpStatusCode: 500,
   },
   middlewareFileNotFound:{
     code: 63,
-    message: "فایل charityConfig.json  پیدا نشد!",
+    message: "charityConfig.json file not found! please insert the file in config/network directory",
     httpStatusCode: 500,
   },
-  paymentNullInputs:{
+  targetNgoIsNull:{
     code: 64,
-    message: "نام موسسه مقصد، هش کد طرح و نیازمند اجباری است!",
+    message: "Target NGO name, Plan and Beneficiary hash codes are required!",
     httpStatusCode: 400,
   },
   settlementNullInputs:{
     code: 65,
-    message: "هش کد طرح و نیازمند و نوع پرداخت تایید کمک/تسویه نهایی  اجباری است! ",
+    message: "Plan hash code, Needy hash code and type of payment approve/final settlement are requierd!",
     httpStatusCode: 400,
   },
   targetNgoNameIsNull: {
     code: 66,
-    message: "برای تسویه با موسسه، نام موسسه اجباری است",
+    message: "For this settlement NGO's name is required",
     httpStatusCode: 400,
   },
 };
 
-module.exports = { GlobalExceptions };
+module.exports = { GlobalExceptionsEn };

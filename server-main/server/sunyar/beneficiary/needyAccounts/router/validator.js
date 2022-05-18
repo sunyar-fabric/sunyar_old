@@ -4,9 +4,8 @@ const  preventSqlInjection  = require('../../../../utility/fnPreventSqlInjection
 const  preventSqlInjectionV2  = require('../../../../utility/fnPreventSqlInjection').customInjection;
 
 
-const validateLoadNeedyAccounts = async (body) => {
-
-    const schema = Joi.object().keys({
+const validateLoadNeedyAccounts = async (body, language) => {
+    var schema = Joi.object().keys({
         needyAccountId: Joi.number().integer().messages({
             'number.base': `نوع ورودی شناسه حساب نیازمند صحیح نمیاشد`,
         }).allow("null",null),
@@ -86,12 +85,78 @@ const validateLoadNeedyAccounts = async (body) => {
                 return true;
             }).allow(null,"")
     });
+    var schemaEn = Joi.object().keys({
+        needyAccountId: Joi.number().integer().allow("null",null),
+        bankId: Joi.number().integer().allow("null",null),
+        needyId: Joi.number().integer().allow("null",null),
+        ownerName: Joi.string().min(1).max(1000)
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                 return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        }),
+        cardNumber: Joi.string()
+            .custom((value, helper) => {
+                value = english_digit(value)
+                let L = value.length;
+                if (value.length !== 16 || parseInt(value.substr(1, 10), 10) == 0 || parseInt(value.substr(10, 6), 10) == 0) return helper.message("شماره کارت بانکی نادرست است");
+                let c = parseInt(value.substr(15, 1), 10);
+                let s = 0;
+                let k, d;
+                for (var i = 0; i < 16; i++) {
+                    k = (i % 2 == 0) ? 2 : 1;
+                    d = parseInt(value.substr(i, 1), 10) * k;
+                    s += (d > 9) ? d - 9 : d;
+                }
+                if ((s % 10) == 0) return true;
+                return helper.message("Invalid card number");
+            }),
+        accountNumber: Joi.string().min(1).max(10)
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                 return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        }),
+        accountName: Joi.string().min(1).max(500)
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                 return true
+            }else {return helper.message("Invalid characters are not allowed");}
+        }),
+        shebaNumber: Joi.string()
+            .custom((value, helper) => {
+                value = english_digit(value)
+                let pattern = /IR[0-9]{24}/;
+                if (value.length !== 26) {
+                    return helper.message("Invalid SHEBA number");
+                }
+                if (!pattern.test(value)) {
+                    return helper.message("Invalid SHEBA number");
+                }
+                let newStr = value.substr(4);
+                let d1 = value.charCodeAt(0) - 65 + 10;
+                let d2 = value.charCodeAt(1) - 65 + 10;
+                newStr += d1.toString() + d2.toString() + value.substr(2, 2);
+                var remainder = newStr,
+                    block;
+                while (remainder.length > 2) {
+                    block = remainder.slice(0, 9);
+                    remainder = parseInt(block, 10) % 97 + remainder.slice(block.length);
+                }
+                remainder = parseInt(remainder, 10) % 97;
+                if (remainder !== 1) {
+                    return helper.message("Invalid SHEBA number");
+                }
+                return true;
+            }).allow(null,"")
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateCreateNeedyAccounts = async (body) => {
+const validateCreateNeedyAccounts = async (body, language) => {
 
-    const schema = Joi.object().keys({
+    var schema = Joi.object().keys({
         bankId: Joi.number().required().integer().messages({
             'number.base': `نوع ورودی شناسه حساب بانک صحیح نمیاشد`,
             'number.empty': `  شناسه حساب بانک اجباری است`,
@@ -186,12 +251,79 @@ const validateCreateNeedyAccounts = async (body) => {
                 'any.required': `شماره شبا اجباری است`
             }),
     });
+    var schemaEn = Joi.object().keys({
+        bankId: Joi.number().required().integer(),
+        needyId: Joi.number().required().integer(),
+        ownerName: Joi.string().required().min(1).max(1000).trim()
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                 return true
+            }else {return helper.message("Invalid SHEBA number");}
+        }),
+        cardNumber: Joi.string()
+            .custom((value, helper) => {
+                if (value) {
+                    value = english_digit(value)
+                    let L = value.length;
+                    if (value.length !== 16 || parseInt(value.substr(1, 10), 10) == 0 || parseInt(value.substr(10, 6), 10) == 0) return helper.message("شماره کارت بانکی نادرست است");
+                    let c = parseInt(value.substr(15, 1), 10);
+                    let s = 0;
+                    let k, d;
+                    for (var i = 0; i < 16; i++) {
+                        k = (i % 2 == 0) ? 2 : 1;
+                        d = parseInt(value.substr(i, 1), 10) * k;
+                        s += (d > 9) ? d - 9 : d;
+                    }
+                    if ((s % 10) == 0) return true;
+                    return helper.message("Invalid card number");
+                } else return true
+            }).allow(""),
+        accountNumber: Joi.string().required().min(1).max(10)
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                 return true
+            }else {return helper.message("Invalid SHEBA number");}
+        }),
+        accountName: Joi.string().min(1).max(500)
+        .custom((value, helper)=>{
+            if(preventSqlInjection(value)){
+                 return true
+            }else {return helper.message("Invalid SHEBA number");}
+        }),
+        shebaNumber: Joi.string().required()
+            .custom((value, helper) => {
+                value = english_digit(value)
+                let pattern = /IR[0-9]{24}/;
+                if (value.length !== 26) {
+                    return helper.message("Invalid SHEBA number");
+                }
+                if (!pattern.test(value)) {
+                    return helper.message("Invalid SHEBA number");
+                }
+                let newStr = value.substr(4);
+                let d1 = value.charCodeAt(0) - 65 + 10;
+                let d2 = value.charCodeAt(1) - 65 + 10;
+                newStr += d1.toString() + d2.toString() + value.substr(2, 2);
+                var remainder = newStr,
+                    block;
+                while (remainder.length > 2) {
+                    block = remainder.slice(0, 9);
+                    remainder = parseInt(block, 10) % 97 + remainder.slice(block.length);
+                }
+                remainder = parseInt(remainder, 10) % 97;
+                if (remainder !== 1) {
+                    return helper.message("Invalid SHEBA number");
+                }
+                return true;
+            }),
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateUpdateNeedyAccounts = async (body) => {
+const validateUpdateNeedyAccounts = async (body, language) => {
 
-    const schema = Joi.object().keys({
+    var schema = Joi.object().keys({
         needyAccountId: Joi.number().required().integer().messages({
             'number.base': `نوع ورودی شناسه حساب نیازمند صحیح نمیاشد`,
             'number.empty': ` شناسه حساب نیازمند اجباری است `,
@@ -291,10 +423,79 @@ const validateUpdateNeedyAccounts = async (body) => {
                 'any.required': `شماره شبا اجباری است`
             }),
         })
+    var schemaEn = Joi.object().keys({
+            needyAccountId: Joi.number().required().integer(),
+            bankId: Joi.number().required().integer(),
+            needyId: Joi.number().required().integer(),
+    
+            ownerName: Joi.string().required().min(1).max(1000).trim()
+            .custom((value, helper)=>{
+                if(preventSqlInjection(value)){
+                     return true
+                }else {return helper.message("Invalid characters are not aloowed");}
+            }),
+            cardNumber: Joi.string()
+                .custom((value, helper) => {
+                    if (value) {
+                        value = english_digit(value)
+                        let L = value.length;
+                        if (value.length !== 16 || parseInt(value.substr(1, 10), 10) == 0 || parseInt(value.substr(10, 6), 10) == 0) return helper.message("شماره کارت بانکی نادرست است");
+                        let c = parseInt(value.substr(15, 1), 10);
+                        let s = 0;
+                        let k, d;
+                        for (var i = 0; i < 16; i++) {
+                            k = (i % 2 == 0) ? 2 : 1;
+                            d = parseInt(value.substr(i, 1), 10) * k;
+                            s += (d > 9) ? d - 9 : d;
+                        }
+                        if ((s % 10) == 0) return true;
+                        return helper.message("Invalid card number");
+                    } else return true
+                }).allow(""),
+            accountNumber: Joi.string().required().min(1).max(10).trim()
+            .custom((value, helper)=>{
+                if(preventSqlInjection(value)){
+                     return true
+                }else {return helper.message("Invalid characters are not aloowed");}
+            }),
+            accountName: Joi.string().min(1).max(500)
+            .custom((value, helper)=>{
+                if(preventSqlInjection(value)){
+                     return true
+                }else {return helper.message("Invalid characters are not aloowed");}
+            }),
+            shebaNumber: Joi.string().required()
+                .custom((value, helper) => {
+                    value = english_digit(value)
+                    let pattern = /IR[0-9]{24}/;
+                    if (value.length !== 26) {
+                        return helper.message("Invalid SHEBA number");
+                    }
+                    if (!pattern.test(value)) {
+                        return helper.message("Invalid SHEBA number");
+                    }
+                    let newStr = value.substr(4);
+                    let d1 = value.charCodeAt(0) - 65 + 10;
+                    let d2 = value.charCodeAt(1) - 65 + 10;
+                    newStr += d1.toString() + d2.toString() + value.substr(2, 2);
+                    var remainder = newStr,
+                        block;
+                    while (remainder.length > 2) {
+                        block = remainder.slice(0, 9);
+                        remainder = parseInt(block, 10) % 97 + remainder.slice(block.length);
+                    }
+                    remainder = parseInt(remainder, 10) % 97;
+                    if (remainder !== 1) {
+                        return helper.message("Invalid SHEBA number");
+                    }
+                    return true;
+                }),
+            })
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateDeleteNeedyAccounts = async (body) => {
+const validateDeleteNeedyAccounts = async (body, language) => {
 
     const schema = Joi.object().keys({
         needyAccountId: Joi.number().integer().required().messages({
@@ -303,6 +504,10 @@ const validateDeleteNeedyAccounts = async (body) => {
             'any.required': `  شناسه حساب نیازمند اجباری است`
         }),
     });
+    const schemaEn = Joi.object().keys({
+        needyAccountId: Joi.number().integer().required(),
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 }
 module.exports = {

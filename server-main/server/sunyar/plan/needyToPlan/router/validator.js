@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
-const validateCreateNeedyToPlan = async (body) => {
-    const schema = Joi.object().keys({
+const validateCreateNeedyToPlan = async (body, language) => {
+    var schema = Joi.object().keys({
         planId: Joi.number().integer().required().messages({
             'number.base': `نوع ورودی شناسه طرح صحیح نمیاشد`,
             'number.empty':  `شناسه  طرح اجباری است`,
@@ -15,18 +15,26 @@ const validateCreateNeedyToPlan = async (body) => {
             'date.date': `نوع ورودی باید تایم‌استمپ باشد`,
             'date.timestamp': `نوع ورودی باید تایم‌استمپ باشد`
         }),
-        tDate: Joi.date().timestamp().greater(Joi.ref('fDate')).messages({
-            'date.base': `زمان پایان طرح واردشده صحیح نمی‌باشد`,
-            'date.date': `نوع ورودی باید تایم‌استمپ باشد`,
-            'date.timestamp': `نوع ورودی باید تایم‌استمپ باشد`,
-            'date.greater': `زمان پایان طرح باید بزرگتر از زمان شروع باشد`
-        }),
+        tDate: Joi.date().timestamp().greater(Joi.ref('fDate')),
+        // benHashes: Joi.array().messages({
+        //     'array.base': `هش کد نیازمندان ضروری است`,
+        //     'array.emtpty': `هش کد نیازمندان ضروری است`,
+        // })
     });
+    var schemaEn = Joi.object().keys({
+        planId: Joi.number().integer().required(),
+        needyId: Joi.array().items(Joi.number()).required(),
+        fDate: Joi.date(),
+        tDate: Joi.date().timestamp().greater(Joi.ref('fDate')),
+        benHashes: Joi.exist()
+    });
+    // console.log("THIS", language);
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateUpdateNeedyToPlan = async (body) => {
-    const schema = Joi.object().keys({
+const validateUpdateNeedyToPlan = async (body, language) => {
+    var schema = Joi.object().keys({
         assignNeedyPlanId: Joi.number().integer().required().messages({
             'number.base': `نوع ورودی صحیح نمیاشد`,
             'number.empty': `ورودی اختصاص نیازمند به طرح اجباری است`,
@@ -54,11 +62,19 @@ const validateUpdateNeedyToPlan = async (body) => {
             'date.greater': `زمان پایان طرح باید بزرگتر از زمان شروع باشد`
         }),
     });
+    var schemaEn = Joi.object().keys({
+        assignNeedyPlanId: Joi.number().integer().required(),
+        planId: Joi.number().integer().required(),
+        needyId: Joi.number().integer().required(),
+        fDate: Joi.date().timestamp(),
+        tDate: Joi.date().timestamp().greater(Joi.ref('fDate')),
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateLoadNeedyToPlan = async (body) => {
-    const schema = Joi.object().keys({
+const validateLoadNeedyToPlan = async (body, language) => {
+    var schema = Joi.object().keys({
         assignNeedyPlanId: Joi.number().integer().messages({
             'number.base': `نوع ورودی شناسه اختصاص نیازمند به طرح صحیح نمیاشد`,
         }).allow(null,"null"),
@@ -80,17 +96,29 @@ const validateLoadNeedyToPlan = async (body) => {
             'date.greater': `زمان پایان طرح باید بزرگتر از زمان شروع باشد`
         }).allow(null,"null"),
     });
+    var schemaEn = Joi.object().keys({
+        assignNeedyPlanId: Joi.number().integer().allow(null,"null"),
+        planId: Joi.number().integer().allow(null,"null"),
+        needyId: Joi.number().integer().allow(null,"null"),
+        fDate: Joi.date().timestamp().allow(null,"null"),
+        tDate: Joi.date().timestamp().greater(Joi.ref('fDate')).allow(null,"null"),
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 
-const validateDeleteNeedyToPlan = async (body) => {
-    const schema = Joi.object().keys({
+const validateDeleteNeedyToPlan = async (body, language) => {
+    var schema = Joi.object().keys({
         assignNeedyPlanId: Joi.number().integer().required().messages({
             'number.base': `نوع شناسه اختصاص نیازمند به طرح صحیح نمی‌باشد`,
             'number.empty': `شناسه اختصاص نیازمند به طرح اجباری است`,
             'any.required': `شناسه اختصاص نیازمند به طرح اجباری است`
         })
     });
+    var schemaEn = Joi.object().keys({
+        assignNeedyPlanId: Joi.number().integer().required()
+    });
+    schema = language.en? schemaEn: schema; 
     return schema.validate(body);
 };
 

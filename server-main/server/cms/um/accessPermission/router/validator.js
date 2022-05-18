@@ -1,9 +1,7 @@
 const Joi = require('joi');
 
-/////-------------- System Form Validator ----------------------------------------
-
-const validateCreateSystemForm = async (body) => {
-  const schema = Joi.object().keys({
+const validateCreateSystemForm = async (body, language) => {
+  var schema = Joi.object().keys({
     faForm: Joi.string().required().min(1).max(500).messages({
       'string.base': `نوع ورودی صحیح نمی‌باشد`,
       'string.empty': `نام فارسی فرم اجباری است`,
@@ -25,13 +23,20 @@ const validateCreateSystemForm = async (body) => {
       'any.required': `شناسه پدر اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    faForm: Joi.string().required().min(1).max(500),
+    enForm: Joi.string().required().min(1).max(500),
+    sysKind: Joi.boolean(),
+    sysParentId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateUpdateSystemForm = async (body, systemFormId) => {
+const validateUpdateSystemForm = async (body, systemFormId, language) => {
   body.systemFormId = systemFormId;
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه فرم اجباری است`,
@@ -58,12 +63,20 @@ const validateUpdateSystemForm = async (body, systemFormId) => {
       'any.required': `شناسه پدر اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer().required(),
+    faForm: Joi.string().required().min(1).max(500),
+    enForm: Joi.string().required().min(1).max(500),
+    sysKind: Joi.boolean(),
+    sysParentId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateLoadSystemForm = async (query) => {
-  const schema = Joi.object().keys({
+const validateLoadSystemForm = async (query, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`
     }),
@@ -83,24 +96,34 @@ const validateLoadSystemForm = async (query) => {
       'number.base': `نوع ورودی صحیح نمی‌باشد`
     })
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer(),
+    faForm: Joi.string().min(1).max(500),
+    enForm: Joi.string().min(1).max(500),
+    sysKind: Joi.boolean(),
+    sysParentId: Joi.number().integer()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(query);
 }
 
-const validateDeleteSystemForm = async (params) => {
-  const schema = Joi.object().keys({
+const validateDeleteSystemForm = async (params, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه فرم اجباری است`,
       'any.required': `شناسه فرم اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(params);
 }
 
-/////-------------- Access Permission Validator ----------------------------------------
-
-const validateAssignPermissionToRole = async (body) => {
-  const schema = Joi.object().keys({
+const validateAssignPermissionToRole = async (body, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه فرم اجباری است`,
@@ -115,11 +138,17 @@ const validateAssignPermissionToRole = async (body) => {
       'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
     }),
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer(),
+    roleId: Joi.number().integer().required(),
+    hasAccess: Joi.boolean(),
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateLoadPermission = async (body) => {
-  const schema = Joi.object().keys({
+const validateLoadPermission = async (body, language) => {
+  var schema = Joi.object().keys({
     assignRoleToSystemFormId: Joi.number().integer().messages({
       'number.base': `نوع شناسه مجوزدسترسی صحیح نمی‌باشد`
     }),
@@ -133,12 +162,19 @@ const validateLoadPermission = async (body) => {
       'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
     })
   });
+  var schemaEn = Joi.object().keys({
+    assignRoleToSystemFormId: Joi.number().integer(),
+    systemFormId: Joi.number().integer(),
+    roleId: Joi.number().integer(),
+    hasAccess: Joi.boolean()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateDeletePermission = async (body) => {
-  const schema = Joi.object().keys({
+const validateDeletePermission = async (body, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().messages({
       'number.base': `نوع شناسه فرم صحیح نمی‌باشد`
     }),
@@ -146,6 +182,11 @@ const validateDeletePermission = async (body) => {
       'number.base': `نوع شناسه نقش صحیح نمی‌باشد`
     }),
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer(),
+    roleId: Joi.number().integer(),
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 }
 

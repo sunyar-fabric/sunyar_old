@@ -5,26 +5,17 @@ const {authorizeRequest} = require("../../../../cms/um/jwt/compositeServices/aut
 
 const sunyarRouter = require('express').Router();
 
-//---------------------------------------------------------------------------------------
-// Plan ---------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------------------
-// Task Plan1 --- PLAN ------------------------------------------------------------------
-//---------------------------------------------------------------------------------------
-
-///-- icone Blob and Join and delete must be checked ----------------
 
 sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ['AID'], next),async (req, res, next) => {
     try {
-        const { error } = await validateCreatePlan(req.body)
+        const { error } = await validateCreatePlan(req.body, req.language);
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
             throw createError({ code: 2, message: message, httpStatusCode: 400 }, req.context);
         }
-        const { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin } = req.body;
-        req.context.params = { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin };
+        const { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin, isFinal } = req.body;
+        req.context.params = { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin, isFinal };
         req.context = await wsCreatePlan(req.context);
         res.json(req.context.result);
         next();
@@ -33,7 +24,7 @@ sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ['AID'], next),as
 
 sunyarRouter.put('/:planId', (req, _, next) => authorizeRequest(req, ["AID"], next),async (req, res, next) => {
     try {
-        const { error } = await validateUpdatePlan(req.body, req.params.planId)
+        const { error } = await validateUpdatePlan(req.body, req.params.planId, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -50,7 +41,7 @@ sunyarRouter.put('/:planId', (req, _, next) => authorizeRequest(req, ["AID"], ne
 
 sunyarRouter.get('/',async (req,res, next) => {
     try {
-        const { error } = await validateLoadPlan(req.query)
+        const { error } = await validateLoadPlan(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -66,7 +57,7 @@ sunyarRouter.get('/',async (req,res, next) => {
 
 sunyarRouter.get('/planPagination',async (req, res, next) => {
     try {
-        const { error } = await validateLoadPlanPaginate(req.query)
+        const { error } = await validateLoadPlanPaginate(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -82,6 +73,7 @@ sunyarRouter.get('/planPagination',async (req, res, next) => {
 
 sunyarRouter.get('/planTree',async (req, res, next) => {
     try {
+        req.context.params = req.query;
         req.context = await wsLoadPlanTree(req.context);
         res.json(req.context.result);
         next();
@@ -90,7 +82,7 @@ sunyarRouter.get('/planTree',async (req, res, next) => {
 
 sunyarRouter.delete('/:planId', (req, _, next) => authorizeRequest(req, ["AID"], next),async (req, res, next) => {
     try {
-        const { error } = await validateDeletePlan(req.params)
+        const { error } = await validateDeletePlan(req.params, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -103,8 +95,5 @@ sunyarRouter.delete('/:planId', (req, _, next) => authorizeRequest(req, ["AID"],
         next();
     } catch (error) { next(error); }
 });
-
-
-
 
 module.exports = sunyarRouter

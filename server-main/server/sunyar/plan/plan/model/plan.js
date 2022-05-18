@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        planHashCode:{
+            type: DataTypes.STRING(1000),
+            allowNull: true,
+            defaultValue: null
         }
     }, {
         schema: "PM",

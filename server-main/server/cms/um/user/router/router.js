@@ -7,7 +7,7 @@ const { validateCreateUser, validateUpdateUser, validateLoadUser, validateDelete
 
 router.post('/',(req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateCreateUser(req.body)
+        const { error } = await validateCreateUser(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -23,7 +23,7 @@ router.post('/',(req, _, next) => authorizeRequest(req, 'ADMIN', next),async (re
 
 router.put('/:userId', (req, _, next) => authorizeRequest(req, ['ADMIN', "AID", "ACCOUNTANT"], next),async (req, res, next) => {
     try {
-        const { error } = await validateUpdateUser(req.body, req.params.userId)
+        const { error } = await validateUpdateUser(req.body, req.params.userId, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -42,7 +42,7 @@ router.put('/:userId', (req, _, next) => authorizeRequest(req, ['ADMIN', "AID", 
 
 router.get('/', (req, _, next) => authorizeRequest(req, ['ADMIN', 'AID', 'ACCOUNTANT'], next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadUser(req.query)
+        const { error } = await validateLoadUser(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -58,7 +58,7 @@ router.get('/', (req, _, next) => authorizeRequest(req, ['ADMIN', 'AID', 'ACCOUN
 
 router.get('/userPagination', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadUserPaginate(req.query)
+        const { error } = await validateLoadUserPaginate(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -75,7 +75,7 @@ router.get('/userPagination', (req, _, next) => authorizeRequest(req, 'ADMIN', n
 
 router.delete('/:userId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateDeleteUser(req.params);
+        const { error } = await validateDeleteUser(req.params, req.language);
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -91,7 +91,7 @@ router.delete('/:userId', (req, _, next) => authorizeRequest(req, 'ADMIN', next)
 
 router.post('/login', async (req, res, next) => {
     try {
-        const { error } = await validateLogin(req.body)
+        const { error } = await validateLogin(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');

@@ -1,8 +1,8 @@
 const Joi = require('joi');
 const  preventSqlInjection  = require('../../../../utility/fnPreventSqlInjection').custom;
 
-const validateLoadBaseType = async (body) => {
-    const schema = Joi.object().keys({
+const validateLoadBaseType = async (body, language) => {
+    var schema = Joi.object().keys({
         commonBaseTypeId: Joi.number().integer().messages({
             'number.base': `نوع شناسه صحیح نمیاشد`,
         }),
@@ -24,11 +24,19 @@ const validateLoadBaseType = async (body) => {
             'string.max': 'تعداد کارکترهای عنوان از مقدار مجاز بیشتر است',
         }),
     });
+    var schemaEn = Joi.object().keys({
+        commonBaseTypeId: Joi.number().integer(),
+        baseTypeCode: Joi.string().min(3).max(3)
+        ,
+        baseTypeTitle: Joi.string().min(1).max(800)
+       ,
+    });
+    schema = language.en? schemaEn: schema;
     return schema.validate(body);
 };
 
-const validateCreateBaseType = async (body) => {
-    const schema = Joi.object().keys({
+const validateCreateBaseType = async (body, language) => {
+    var schema = Joi.object().keys({
             baseTypeTitle: Joi.string().required().min(1).max(800).trim()
             .custom((value, helper)=>{
                 if(preventSqlInjection(value)){
@@ -52,11 +60,19 @@ const validateCreateBaseType = async (body) => {
             }),
 
     });
+    var schemaEn = Joi.object().keys({
+        baseTypeTitle: Joi.string().required().min(1).max(800).trim()
+        ,
+        baseTypeCode: Joi.string().required().min(3).max(3).trim()
+      ,
+
+});
+    schema = language.en? schemaEn: schema;
     return schema.validate(body);
 };
 
-const validateUpdateBaseType = async (body) => {
-    const schema = Joi.object().keys({
+const validateUpdateBaseType = async (body, language) => {
+    var schema = Joi.object().keys({
         commonBaseTypeId: Joi.number().required().integer().messages({
             'number.base': ` نوع ورودی شناسه ثابت به صورت عدد باشد`,
             'number.empty': `  شناسه ثابت اجباری است`,
@@ -74,18 +90,27 @@ const validateUpdateBaseType = async (body) => {
             'any.required': `ورودی عنوان اجباری است`
         }),
     });
+    var schemaEn = Joi.object().keys({
+        commonBaseTypeId: Joi.number().required().integer(),
+        baseTypeTitle: Joi.string().required().min(1).max(800).trim()
+        ,
+    });
+    schema = language.en? schemaEn: schema;
     return schema.validate(body);
 };
-const validateDeleteBaseType = async (body) => {
+const validateDeleteBaseType = async (body, language) => {
 
-    const schema = Joi.object().keys({
+    var schema = Joi.object().keys({
         commonBaseTypeId: Joi.number().integer().required().messages({
             'number.base': `نوع ورودی شناسه ثابت به صورت عدد باشد`,
             'number.empty': `ورودی  شناسه ثابت اجباری است`,
             'any.required': `ورودی  شناسه ثابت اجباری است`
         }),
     });
-
+    var schemaEn = Joi.object().keys({
+        commonBaseTypeId: Joi.number().integer().required(),
+    });
+    schema = language.en? schemaEn: schema;
     return schema.validate(body);
 };
 

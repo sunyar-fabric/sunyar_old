@@ -12,7 +12,7 @@ const verifyUser = async (context) => {
         if (user === null) {
             throw createError(GlobalExceptions.forgetMyPass.NotAuthorized)
         }
-        const person = await getPersonInfo(setContextInput(context, user.personId)); 
+        const person = await getPersonInfo(setContextInput(context, {personId: user.personId})); 
         if(authNationalCode != person.output.nationalCode){
             throw createError(GlobalExceptions.forgetMyPass.NotAuthorized)
         }

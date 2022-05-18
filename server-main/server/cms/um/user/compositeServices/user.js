@@ -171,14 +171,14 @@ const wsLogin = async (context) => {
     }));
     context.token = authorize.token;
     context.refreshToken = authorize.refreshToken;
-    const resultPerson = await getPersonInfo(setContextInput(context, user.personId)); 
+    const resultPerson = await getPersonInfo(setContextInput(context, {personId: user.personId})); 
     const resultRole = await loadUserRoles(setContextInput(context, {
         userId: user.userId
     }));
     let roles = "null";
     if(resultRole.outputs[3] && resultRole.outputs[3].length > 0){
         roles = resultRole.outputs[3].map(r => r.roleId);
-    }
+    } 
     const personType = resultPerson.outputs[2].personType;
     const name = resultPerson.outputs[2].name;
     const family = resultPerson.outputs[2].family;

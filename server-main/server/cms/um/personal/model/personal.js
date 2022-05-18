@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         secretCode: {
             type: DataTypes.STRING(30),
+        },
+        isActive:{
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     },{
         schema: 'CMS',

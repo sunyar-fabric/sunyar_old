@@ -1,14 +1,7 @@
 const Joi = require('joi');
 
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////// personal validation /////////////////////////////////////////////////////////////////////
-const validateLoadPersonal = async (body) => {
-
-  const schema = Joi.object().keys({
+const validateLoadPersonal = async (body, language) => {
+  var schema = Joi.object().keys({
     page: Joi.number().integer().messages({
       'number.base': `ورودی صفحه صحیح نمی‌باشد`,
     }).allow('null', null),
@@ -83,13 +76,60 @@ const validateLoadPersonal = async (body) => {
       'number.max': `تعداد کارکترهای نوع شخص بیش از حد مجاز است`,
     }).allow(null, "null"),
   })
+  var schemaEn = Joi.object().keys({
+    page: Joi.number().integer().allow('null', null),
+    personId: Joi.number().integer().allow('null', null),
+    name: Joi.string().min(1).max(500),
+    family: Joi.string().min(1).max(500),
+    // mobileNumber: Joi.string()
+    //     .regex(/^[0-9]{12}$/)
+    //     .custom((value, helper) => {
+    //         if (parseInt(value) > 989000000000 && parseInt(value) < 989999999999) return true;
+    //         return helper.message("شماره موبایل نادرست است");
+    //     }),
+    nationalCode: Joi.string()
+      .custom((value, helper) => {
+        if (value) {
+          if (value.length < 8 || parseInt(value, 10) == 0) return helper.message("Invalid national code")
+          value = ('0000' + value).substr(value.length + 4 - 10);
+          if (parseInt(value.substr(3, 6), 10) == 0) return helper.message("Invalid national code")
+          if (value.length == 10) {
+            if (value == '1111111111' || value == '0000000000' || value == '2222222222' ||
+              value == '3333333333' || value == '4444444444' || value == '5555555555' ||
+              value == '6666666666' || value == '7777777777' || value == '8888888888' ||
+              value == '9999999999') {
+              return helper.message("Invalid national code");
+            }
+            let c = parseInt(value.charAt(9));
+            let n = 0;
+            for (let i = 0; i < 9; i++) {
+              n += parseInt(value.charAt(i)) * (10 - i)
+            }
+            r = n - parseInt(n / 11) * 11;
+            if ((r == 0 && r == c) || (r == 1 && c == 1) || (r > 1 && c == 11 - r)) {
+              return true;
+            } else {
+              return helper.message("Invalid national code");
+            }
+          } else return true;
+        } else return true;
+      }),
+    idNumber: Joi.string().min(1).max(10),
+    sex: Joi.boolean().allow(null, "null"),
+    birthDate: Joi.date().allow(null, "null"),
+    birthPlace: Joi.string().max(500),
+    personType: Joi.number().integer().allow(null, "null"),
+    personPhoto: Joi.binary().allow(null, "null"),
+    secretCode: Joi.string().max(30).allow(null, "null"),
+  })
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateLoadPersonalSearch = async (query) => {
+const validateLoadPersonalSearch = async (query, language) => {
 
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     page: Joi.number().integer().required().messages({
       'number.base': `ورودی صفحه صحیح نمی‌باشد`,
       'any.required': `ورودی صفحه اجباری است`
@@ -112,13 +152,22 @@ const validateLoadPersonalSearch = async (query) => {
       'number.base': `نوع ماهیت صحیح نمی‌باشد`,
       'number.max': `تعداد کارکترهای ماهیت بیش از حد مجاز است`,
     }),
-  });
+  }); 
+  var schema = Joi.object().keys({
+    page: Joi.number().integer().required(),
+    name: Joi.string().min(1).max(500),
+    family: Joi.string().min(1).max(500),
+    nationalCode: Joi.string(),
+    sex: Joi.boolean(),
+    personType: Joi.number().integer().min(1).max(3),
+  }); 
+  schema = language.en? schemaEn: schema;
   return schema.validate(query);
 };
 
-const validateCreatePersonal = async (body) => {
+const validateCreatePersonal = async (body, language) => {
 
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     name: Joi.string().required().min(1).max(500).messages({
       'string.base': `نوع ورودی نام صحیح نمی‌باشد`,
       'string.empty': `ورودی نام اجباری است`,
@@ -190,14 +239,55 @@ const validateCreatePersonal = async (body) => {
       'any.required': `عکس اجباری است`
     }).allow(null),
     secretCode: Joi.string().allow('', null),
+  });  
+  var schemaEn = Joi.object().keys({
+    name: Joi.string().required().min(1).max(500),
+    family: Joi.string().required().min(1).max(500),
+    nationalCode: Joi.string()
+      .custom((value, helper) => {
+        if (value) {
+          if (value.length < 8 || parseInt(value, 10) == 0) return helper.message("Invalid national code")
+          value = ('0000' + value).substr(value.length + 4 - 10);
+          if (parseInt(value.substr(3, 6), 10) == 0) return helper.message("Invalid national code")
+          if (value.length == 10) {
+            if (value == '1111111111' || value == '0000000000' || value == '2222222222' ||
+              value == '3333333333' || value == '4444444444' || value == '5555555555' ||
+              value == '6666666666' || value == '7777777777' || value == '8888888888' ||
+              value == '9999999999') {
+              return helper.message("Invalid national code");
+            }
+            let c = parseInt(value.charAt(9));
+            let n = 0;
+            for (let i = 0; i < 9; i++) {
+              n += parseInt(value.charAt(i)) * (10 - i)
+            }
+            r = n - parseInt(n / 11) * 11;
+            if ((r == 0 && r == c) || (r == 1 && c == 1) || (r > 1 && c == 11 - r)) {
+              return true;
+            } else {
+              return helper.message("Invalid national code");
+            }
+          } else return true;
+        } else return true;
+      }),
+    idNumber: Joi.string().min(1).max(10),
+    sex: Joi.boolean().required(),
+    birthDate: Joi.date().allow(null),
+
+
+    birthPlace: Joi.string().max(500).allow("", null),
+    personType: Joi.number().integer().required(),
+    personPhoto: Joi.binary().allow(null),
+    secretCode: Joi.string().allow('', null),
   });
 
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateCreateNeedy = async (body) => {
+const validateCreateNeedy = async (body, language) => {
 
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     name: Joi.string().required().min(1).max(500).messages({
       'string.base': `نوع ورودی نام صحیح نمی‌باشد`,
       'string.empty': `ورودی نام اجباری است`,
@@ -290,13 +380,59 @@ const validateCreateNeedy = async (body) => {
 
 
   });
+  var schemaEn = Joi.object().keys({
+    name: Joi.string().required().min(1).max(500),
+    family: Joi.string().required().min(1).max(500),
+    // mobileNumber: Joi.string()
+    //     .regex(/^[0-9]{12}$/)
+    //     .custom((value, helper) => {
+    //         if (parseInt(value) > 989000000000 && parseInt(value) < 989999999999) return true;
+    //         return helper.message("شماره موبایل نادرست است");
+    //     }),
+    nationalCode: Joi.string()
+      .custom((value, helper) => {
+        if (value) {
+          if (value.length < 8 || parseInt(value, 10) == 0) return helper.message("Invalid national code")
+          value = ('0000' + value).substr(value.length + 4 - 10);
+          if (parseInt(value.substr(3, 6), 10) == 0) return helper.message("Invalid national code")
+          if (value.length == 10) {
+            if (value == '1111111111' || value == '0000000000' || value == '2222222222' ||
+              value == '3333333333' || value == '4444444444' || value == '5555555555' ||
+              value == '6666666666' || value == '7777777777' || value == '8888888888' ||
+              value == '9999999999') {
+              return helper.message("Invalid national code");
+            }
+            let c = parseInt(value.charAt(9));
+            let n = 0;
+            for (let i = 0; i < 9; i++) {
+              n += parseInt(value.charAt(i)) * (10 - i)
+            }
+            r = n - parseInt(n / 11) * 11;
+            if ((r == 0 && r == c) || (r == 1 && c == 1) || (r > 1 && c == 11 - r)) {
+              return true;
+            } else {
+              return helper.message("Invalid national code");
+            }
+          } else return true;
+        } else return true;
+      }),
+    idNumber: Joi.string().required().min(1).max(10),
+    sex: Joi.boolean().required(),
+    birthDate: Joi.date().required(),
+    birthPlace: Joi.string().required().min(1).max(500),
+    personType: Joi.number().integer().required(),
+  
+    secretCode: Joi.string().allow('', null),
 
+
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateUpdatePersonal = async (body) => {
+const validateUpdatePersonal = async (body, language) => {
 
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     personId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی شناسه شخص صحیح نمی‌باشد`,
       'number.empty': `شناسه شخص اجباری است`,
@@ -383,13 +519,65 @@ const validateUpdatePersonal = async (body) => {
     secretCode: Joi.string().allow('', null),
 
   });
+  var schemaEn = Joi.object().keys({
+    personId: Joi.number().integer().required(),
+    name: Joi.string().required().min(1).max(500),
+    family: Joi.string().required().min(1).max(500),
+    // mobileNumber: Joi.string()
+    //     .regex(/^[0-9]{12}$/)
+    //     .custom((value, helper) => {
+    //         if (parseInt(value) > 989000000000 && parseInt(value) < 989999999999) return true;
+    //         return helper.message("شماره موبایل نادرست است");
+    //     }),
+    nationalCode: Joi.string()
+      .custom((value, helper) => {
+        if (value) {
+          if (value.length < 8 || parseInt(value, 10) == 0) return helper.message("Invalid national code")
+          value = ('0000' + value).substr(value.length + 4 - 10);
+          if (parseInt(value.substr(3, 6), 10) == 0) return helper.message("Invalid national code")
+          if (value.length == 10) {
+            if (value == '1111111111' || value == '0000000000' || value == '2222222222' ||
+              value == '3333333333' || value == '4444444444' || value == '5555555555' ||
+              value == '6666666666' || value == '7777777777' || value == '8888888888' ||
+              value == '9999999999') {
+              return helper.message("Invalid national code");
+            }
+            let c = parseInt(value.charAt(9));
+            let n = 0;
+            for (let i = 0; i < 9; i++) {
+              n += parseInt(value.charAt(i)) * (10 - i)
+            }
+            r = n - parseInt(n / 11) * 11;
+            if ((r == 0 && r == c) || (r == 1 && c == 1) || (r > 1 && c == 11 - r)) {
+              return true;
+            } else {
+              return helper.message("Invalid national code");
+            }
+          } else return true;
+        } else return true;
+      }),
+    idNumber: Joi.string().min(1).max(10),
+    sex: Joi.boolean().required(),
+    birthDate: Joi.date().allow(null),
 
+
+    birthPlace: Joi.string().max(500),
+    personType: Joi.number().integer().required(),
+    // personPhoto: Joi.binary().messages({
+    //   'binary.base': `نوع ورودی عکس صحیح نمی‌باشد`,
+    //   'binary.empty': `عکس اجباری است`,
+    //   'any.required': `عکس اجباری است`
+    // }).allow(null),
+    secretCode: Joi.string().allow('', null),
+
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateUpdateNeedy = async (body) => {
+const validateUpdateNeedy = async (body, language) => {
 
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     personId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی شناسه شخص صحیح نمی‌باشد`,
       'number.empty': `شناسه شخص اجباری است`,
@@ -487,28 +675,84 @@ const validateUpdateNeedy = async (body) => {
 
 
   });
+  var schemaEn = Joi.object().keys({
+    personId: Joi.number().integer().required(),
+    name: Joi.string().required().min(1).max(500),
+    family: Joi.string().required().min(1).max(500),
+    // mobileNumber: Joi.string()
+    //     .regex(/^[0-9]{12}$/)
+    //     .custom((value, helper) => {
+    //         if (parseInt(value) > 989000000000 && parseInt(value) < 989999999999) return true;
+    //         return helper.message("شماره موبایل نادرست است");
+    //     }),
+    nationalCode: Joi.string()
+      .custom((value, helper) => {
+        if (value) {
+          if (value.length < 8 || parseInt(value, 10) == 0) return helper.message("Invalid national code")
+          value = ('0000' + value).substr(value.length + 4 - 10);
+          if (parseInt(value.substr(3, 6), 10) == 0) return helper.message("Invalid national code")
+          if (value.length == 10) {
+            if (value == '1111111111' || value == '0000000000' || value == '2222222222' ||
+              value == '3333333333' || value == '4444444444' || value == '5555555555' ||
+              value == '6666666666' || value == '7777777777' || value == '8888888888' ||
+              value == '9999999999') {
+              return helper.message("Invalid national code");
+            }
+            let c = parseInt(value.charAt(9));
+            let n = 0;
+            for (let i = 0; i < 9; i++) {
+              n += parseInt(value.charAt(i)) * (10 - i)
+            }
+            r = n - parseInt(n / 11) * 11;
+            if ((r == 0 && r == c) || (r == 1 && c == 1) || (r > 1 && c == 11 - r)) {
+              return true;
+            } else {
+              return helper.message("Invalid national code");
+            }
+          } else return true;
+        } else return true;
+      }),
+    idNumber: Joi.string().required().min(1).max(10),
+    sex: Joi.boolean().required(),
+    birthDate: Joi.date().required(),
 
+
+    birthPlace: Joi.string().required().min(1).max(500),
+    personType: Joi.number().integer().required(),
+    // personPhoto: Joi.binary().required().custom((value, helper) => {
+    //   if(value == ""){
+    //     return helper.message("آپلود عکس اجباری است");
+    //   }
+    // }).messages({
+    //   'binary.base': `نوع ورودی عکس صحیح نمی‌باشد`,
+    //   'binary.empty': `آپلود عکس اجباری است`,
+    //   'any.required': `آپلود عکس اجباری است`
+    // }),
+    secretCode: Joi.string().allow('', null),
+
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateDeletePersonal = async (body) => {
-
-  const schema = Joi.object().keys({
+const validateDeletePersonal = async (body, language) => {
+  var schema = Joi.object().keys({
     personId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی شناسه شخص صحیح نمی‌باشد`,
       'number.empty': `شناسه شخص اجباری است`,
       'any.required': `شناسه شخص اجباری است`
     }),
   });
-
+  var schema = Joi.object().keys({
+    personId: Joi.number().integer().required(),
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-/////-------------- User Validator ----------------------------------------
-
-const validateCreateUserPersonal = async (body) => {
-  const schema = Joi.object().keys({
+const validateCreateUserPersonal = async (body, language) => {
+  var schema = Joi.object().keys({
     name: Joi.string().required().min(1).max(500).messages({
       'string.base': `نوع ورودی نام صحیح نمی‌باشد`,
       'string.empty': `ورودی نام اجباری است`,
@@ -584,12 +828,50 @@ const validateCreateUserPersonal = async (body) => {
       'any.required': `ورودی اجباری است`
     }),
   });
+  var schemaEn = Joi.object().keys({
+    name: Joi.string().required().min(1).max(500),
+    family: Joi.string().required().min(1).max(500),
+    nationalCode: Joi.string()
+      .custom((value, helper) => {
+        if (value) {
+          if (value.length < 8 || parseInt(value, 10) == 0) return helper.message("Invalid national code")
+          value = ('0000' + value).substr(value.length + 4 - 10);
+          if (parseInt(value.substr(3, 6), 10) == 0) return helper.message("Invalid national code")
+          if (value.length == 10) {
+            if (value == '1111111111' || value == '0000000000' || value == '2222222222' ||
+              value == '3333333333' || value == '4444444444' || value == '5555555555' ||
+              value == '6666666666' || value == '7777777777' || value == '8888888888' ||
+              value == '9999999999') {
+              return helper.message("Invalid national code");
+            }
+            let c = parseInt(value.charAt(9));
+            let n = 0;
+            for (let i = 0; i < 9; i++) {
+              n += parseInt(value.charAt(i)) * (10 - i)
+            }
+            r = n - parseInt(n / 11) * 11;
+            if ((r == 0 && r == c) || (r == 1 && c == 1) || (r > 1 && c == 11 - r)) {
+              return true;
+            } else {
+              return helper.message("Invalid national code");
+            }
+          } else return true;
+        } else return true;
+      }),
+
+    sex: Joi.boolean().required(),
+    personType: Joi.number().integer().required(),
+    username: Joi.string().required().min(4).max(15),
+    password: Joi.string().required().min(6).max(15),
+    expireDate: Joi.date().timestamp(),
+    active: Joi.boolean().required(),
+  });
   return schema.validate(body);
 };
 
 
-const validateCreateUser = async (body) => {
-  const schema = Joi.object().keys({
+const validateCreateUser = async (body, language) => {
+  var schema = Joi.object().keys({
     personId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `ورودی اجباری است`,
@@ -616,13 +898,22 @@ const validateCreateUser = async (body) => {
       'any.required': `ورودی اجباری است`
     }),
   });
+  var schemaEn = Joi.object().keys({
+    personId: Joi.number().integer().required(),
+    username: Joi.string().required().min(4).max(15),
+    password: Joi.string().required().min(6).max(15),
+    expireDate: Joi.date()
+    .allow(null,""),
+    active: Joi.boolean().required(),
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateUpdateUser = async (body, userId) => {
+const validateUpdateUser = async (body, userId, language) => {
   body.userId = userId;
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     userId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `ورودی اجباری است`,
@@ -653,13 +944,23 @@ const validateUpdateUser = async (body, userId) => {
       'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
       'any.required': `ورودی اجباری است`
     }),
+  });  
+  var schemaEn = Joi.object().keys({
+    userId: Joi.number().integer().required(),
+    personId: Joi.number().integer().required(),
+    username: Joi.string().required().min(4).max(15),
+    password: Joi.string().allow(null, '').optional().min(6).max(15),
+    expireDate: Joi.date()
+  .allow(null,""),
+    active: Joi.boolean().required(),
   });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateLoadUser = async (query) => {
-  const schema = Joi.object().keys({
+const validateLoadUser = async (query, language) => {
+  var schema = Joi.object().keys({
     userId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`
     }),
@@ -678,11 +979,19 @@ const validateLoadUser = async (query) => {
       'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
     })
   });
+  var schemaEn = Joi.object().keys({
+    userId: Joi.number().integer(),
+    personId: Joi.number().integer(),
+    username: Joi.string(),
+    expireDate: Joi.string(),
+    active: Joi.boolean()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(query);
 }
 
-const validateLoadUserPaginate = async (query) => {
-  const schema = Joi.object().keys({
+const validateLoadUserPaginate = async (query, language) => {
+  var schema = Joi.object().keys({
     page: Joi.number().integer().required().messages({
       'number.base': `ورودی صفحه صحیح نمی‌باشد`,
       'any.required': `ورودی صفحه اجباری است`
@@ -705,23 +1014,36 @@ const validateLoadUserPaginate = async (query) => {
       'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
     })
   });
+  var schemaEn = Joi.object().keys({
+    page: Joi.number().integer().required(),
+    userId: Joi.number().integer(),
+    personId: Joi.number().integer(),
+    username: Joi.string().allow("",null),
+    expireDate: Joi.string(),
+    active: Joi.boolean()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(query);
 }
 
 
-const validateDeleteUser = async (params) => {
-  const schema = Joi.object().keys({
+const validateDeleteUser = async (params, language) => {
+  var schema = Joi.object().keys({
     userId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `ورودی اجباری است`,
       'any.required': `ورودی اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    userId: Joi.number().integer()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(params);
 }
 
-const validateLogin = async (body) => {
-  const schema = Joi.object().keys({
+const validateLogin = async (body, language) => {
+  var schema = Joi.object().keys({
     username: Joi.string().required().min(1).messages({
       'string.base': `نوع نام کاربری صحیح نمی‌باشد`,
       'string.max': `تعداد کارکترهای نام کاربری کمتر از حد مجاز است`,
@@ -734,13 +1056,19 @@ const validateLogin = async (body) => {
       'string.base': `نوع رفرش توکن صحیح نمی‌باشد`,
     })
   });
+  var schemaEn = Joi.object().keys({
+    username: Joi.string().required().min(1),
+    password: Joi.string(),
+    refreshToken: Joi.string()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 }
 
 /////-------------- Role Validator ----------------------------------------
 
-const validateCreateRole = async (body) => {
-  const schema = Joi.object().keys({
+const validateCreateRole = async (body, language) => {
+  var schema = Joi.object().keys({
     faName: Joi.string().required().min(1).max(20).messages({
       'string.base': `نوع ورودی صحیح نمی‌باشد`,
       'string.empty': `نام فارسی نقش اجباری است`,
@@ -753,14 +1081,17 @@ const validateCreateRole = async (body) => {
       'string.max': `تعداد کارکترهای نقش بیش از حد مجاز است`,
       'any.required': `نام نقش اجباری است`
     })
+  });  var schema = Joi.object().keys({
+    faName: Joi.string().required().min(1).max(20),
+    enName: Joi.string().required().min(1).max(20)
   });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-
-const validateUpdateRole = async (body, roleId) => {
+const validateUpdateRole = async (body, roleId, language) => {
   body.roleId = roleId;
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     roleId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه نقش اجباری است`,
@@ -779,12 +1110,18 @@ const validateUpdateRole = async (body, roleId) => {
       'any.required': `نام نقش اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    roleId: Joi.number().integer().required(),
+    faName: Joi.string().required().min(1).max(20),
+    enName: Joi.string().required().min(1).max(20)
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateLoadRole = async (query) => {
-  const schema = Joi.object().keys({
+const validateLoadRole = async (query, language) => {
+  var schema = Joi.object().keys({
     roleId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`
 
@@ -796,24 +1133,34 @@ const validateLoadRole = async (query) => {
       'string.base': `نوع نام انگلیسی نقش صحیح نمی‌باشد`
     })
   });
+  var schemaEn = Joi.object().keys({
+    roleId: Joi.number().integer(),
+    faName: Joi.string().min(1).max(20),
+    enName: Joi.string().min(1).max(20)
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(query);
 }
 
-const validateDeleteRole = async (params) => {
-  const schema = Joi.object().keys({
+const validateDeleteRole = async (params, language) => {
+  var schema = Joi.object().keys({
     roleId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه نقش اجباری است`,
       'any.required': `شناسه نقش اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    roleId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(params);
 }
 
 //------------------ validate SystemForm  NO CHECED ------------------------------------------------
 
-const validateCreateSystemForm = async (body) => {
-  const schema = Joi.object().keys({
+const validateCreateSystemForm = async (body, language) => {
+  var schema = Joi.object().keys({
     faForm: Joi.string().required().min(1).max(500).messages({
       'string.base': `نوع ورودی صحیح نمی‌باشد`,
       'string.empty': `نام فارسی فرم اجباری است`,
@@ -835,13 +1182,20 @@ const validateCreateSystemForm = async (body) => {
       'any.required': `شناسه پدر اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    faForm: Joi.string().required().min(1).max(500),
+    enForm: Joi.string().required().min(1).max(500),
+    sysKind: Joi.boolean(),
+    sysParentId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateUpdateSystemForm = async (body, systemFormId) => {
+const validateUpdateSystemForm = async (body, systemFormId, language) => {
   body.systemFormId = systemFormId;
-  const schema = Joi.object().keys({
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه فرم اجباری است`,
@@ -868,12 +1222,20 @@ const validateUpdateSystemForm = async (body, systemFormId) => {
       'any.required': `شناسه پدر اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer().required(),
+    faForm: Joi.string().required().min(1).max(500),
+    enForm: Joi.string().required().min(1).max(500),
+    sysKind: Joi.boolean(),
+    sysParentId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateLoadSystemForm = async (query) => {
-  const schema = Joi.object().keys({
+const validateLoadSystemForm = async (query, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`
     }),
@@ -893,25 +1255,37 @@ const validateLoadSystemForm = async (query) => {
       'number.base': `نوع ورودی صحیح نمی‌باشد`
     })
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer(),
+    faForm: Joi.string().min(1).max(500),
+    enForm: Joi.string().min(1).max(500),
+    sysKind: Joi.boolean(),
+    sysParentId: Joi.number().integer()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(query);
 }
 
-const validateDeleteSystemForm = async (params) => {
-  const schema = Joi.object().keys({
+const validateDeleteSystemForm = async (params, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه فرم اجباری است`,
       'any.required': `شناسه فرم اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(params);
 }
 
 
 /////-------------- AssignRoleToUSer Validator ----------------------------------------
 
-const validateAssignRoleToUser = async (body) => {
-  const schema = Joi.object().keys({
+const validateAssignRoleToUser = async (body, language) => {
+  var schema = Joi.object().keys({
     userId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `ورودی اجباری است`,
@@ -923,11 +1297,16 @@ const validateAssignRoleToUser = async (body) => {
       'any.required': `شناسه نقش اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    userId: Joi.number().integer(),
+    roleId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateLoadAssignRoleToUser = async (body) => {
-  const schema = Joi.object().keys({
+const validateLoadAssignRoleToUser = async (body, language) => {
+  var schema = Joi.object().keys({
     assignRoleToUserId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
     }),
@@ -938,25 +1317,35 @@ const validateLoadAssignRoleToUser = async (body) => {
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
     })
   });
+  var schemaEn = Joi.object().keys({
+    assignRoleToUserId: Joi.number().integer(),
+    userId: Joi.number().integer(),
+    roleId: Joi.number().integer()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateDeleteRolesFromUser = async (params) => {
-  const schema = Joi.object().keys({
+const validateDeleteRolesFromUser = async (params, language) => {
+  var schema = Joi.object().keys({
     userId: Joi.number().integer().required().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `ورودی اجباری است`,
       'any.required': `ورودی اجباری است`
     })
   });
+  var schemaEn = Joi.object().keys({
+    userId: Joi.number().integer().required()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(params);
 }
 //-------------------------------------------------------------------------------------
 /////-------------- Access Permission Validator ----------------------------------------
 
-const validateAssignPermissionToRole = async (body) => {
-  const schema = Joi.object().keys({
+const validateAssignPermissionToRole = async (body, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().messages({
       'number.base': `نوع ورودی صحیح نمی‌باشد`,
       'number.empty': `شناسه فرم اجباری است`,
@@ -971,11 +1360,17 @@ const validateAssignPermissionToRole = async (body) => {
       'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
     }),
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer(),
+    roleId: Joi.number().integer().required(),
+    hasAccess: Joi.boolean(),
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
-const validateLoadPermission = async (body) => {
-  const schema = Joi.object().keys({
+const validateLoadPermission = async (body, language) => {
+  var schema = Joi.object().keys({
     assignRoleToSystemFormId: Joi.number().integer().messages({
       'number.base': `نوع شناسه مجوزدسترسی صحیح نمی‌باشد`
     }),
@@ -989,12 +1384,19 @@ const validateLoadPermission = async (body) => {
       'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
     })
   });
+  var schemaEn = Joi.object().keys({
+    assignRoleToSystemFormId: Joi.number().integer(),
+    systemFormId: Joi.number().integer(),
+    roleId: Joi.number().integer(),
+    hasAccess: Joi.boolean()
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 };
 
 
-const validateDeletePermission = async (body) => {
-  const schema = Joi.object().keys({
+const validateDeletePermission = async (body, language) => {
+  var schema = Joi.object().keys({
     systemFormId: Joi.number().integer().messages({
       'number.base': `نوع شناسه فرم صحیح نمی‌باشد`
     }),
@@ -1002,6 +1404,11 @@ const validateDeletePermission = async (body) => {
       'number.base': `نوع شناسه نقش صحیح نمی‌باشد`
     }),
   });
+  var schemaEn = Joi.object().keys({
+    systemFormId: Joi.number().integer(),
+    roleId: Joi.number().integer(),
+  });
+  schema = language.en? schemaEn: schema;
   return schema.validate(body);
 }
 //------------------------------------------------------------------

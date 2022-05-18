@@ -15,7 +15,8 @@ const router = require('express').Router();
 
 router.get('/' , (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadBaseType(req.query)
+        console.log("**", req.language);
+        const { error } = await validateLoadBaseType(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -31,7 +32,7 @@ router.get('/' , (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (r
  router.post('/',(req, _, next) => authorizeRequest(req, 'ADMIN', next), async (req, res, next) => {
     try {
         req.body.baseTypeCode = getRandomString.fnGetRandomString(3)
-        const { error } = await validateCreateBaseType(req.body)
+        const { error } = await validateCreateBaseType(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -58,7 +59,7 @@ router.get('/' , (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (r
 router.put('/:commonBaseTypeId',(req, _, next) => authorizeRequest(req, 'ADMIN', next), async (req, res, next) => {
     try {
         req.body.commonBaseTypeId = req.params.commonBaseTypeId
-        const { error } = await validateUpdateBaseType(req.body)
+        const { error } = await validateUpdateBaseType(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -77,12 +78,16 @@ router.put('/:commonBaseTypeId',(req, _, next) => authorizeRequest(req, 'ADMIN',
         req.context = await wsUpdateBaseType(req.context);
         res.json(req.context.result);
         next();
-    } catch (error) { next(error); }
+    } catch (error) { 
+        console.log(error);
+        next(error); }
 });
 
 router.delete('/:commonBaseTypeId',(req, _, next) => authorizeRequest(req, 'ADMIN', next), async (req, res, next) => {
     try {
-        const { error } = await validateDeleteBaseType(req.params)
+
+
+        const { error } = await validateDeleteBaseType(req.params, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');

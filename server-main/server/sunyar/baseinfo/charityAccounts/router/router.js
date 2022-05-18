@@ -6,17 +6,9 @@ const {authorizeRequest} = require("../../../../cms/um/jwt/compositeServices/aut
 
 const sunyarRouter = require('express').Router();
 
-//---------------------------------------------------------------------------------------
-// BaseInfo -----------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------------------
-// BaseInfo 3 => CharityAccounts --------------------------------------------------------
-//---------------------------------------------------------------------------------------
-
 sunyarRouter.get('/', (req, _, next) => authorizeRequest(req, ['ACCOUNTANT'], next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadCharityAccounts(req.query)
+        const { error } = await validateLoadCharityAccounts(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -33,7 +25,7 @@ sunyarRouter.get('/', (req, _, next) => authorizeRequest(req, ['ACCOUNTANT'], ne
 sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
 
-        const { error } = await validateCreateCharityAccounts(req.body)
+        const { error } = await validateCreateCharityAccounts(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -70,7 +62,7 @@ sunyarRouter.put('/:charityAccountId', (req, _, next) => authorizeRequest(req, '
     try {
       
         req.body.charityAccountId = req.params.charityAccountId
-        const { error } = await validateUpdateCharityAccounts(req.body)
+        const { error } = await validateUpdateCharityAccounts(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -107,7 +99,7 @@ sunyarRouter.put('/:charityAccountId', (req, _, next) => authorizeRequest(req, '
 
 sunyarRouter.delete('/:charityAccountId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateDeleteCharityAccounts(req.params)
+        const { error } = await validateDeleteCharityAccounts(req.params, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');

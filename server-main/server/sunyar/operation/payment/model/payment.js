@@ -39,7 +39,7 @@ module.exports = (
         },
         cashAssistanceDetailId : {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,//it was false :)
         },
     },{
         schema : "OP",

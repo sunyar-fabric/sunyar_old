@@ -7,7 +7,7 @@ const {authorizeRequest} = require("../../jwt/compositeServices/authorization")
 
 router.post('/', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateCreateRole(req.body)
+        const { error } = await validateCreateRole(req.body, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -23,7 +23,7 @@ router.post('/', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (r
 
 router.put('/:roleId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateUpdateRole(req.body, req.params.roleId)
+        const { error } = await validateUpdateRole(req.body, req.params.roleId, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -40,7 +40,7 @@ router.put('/:roleId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),as
 
 router.get('/', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadRole(req.query)
+        const { error } = await validateLoadRole(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -56,7 +56,7 @@ router.get('/', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (re
 
 router.delete('/:roleId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateDeleteRole(req.params);
+        const { error } = await validateDeleteRole(req.params, req.language);
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -96,7 +96,7 @@ router.post('/assignRoleToUser', (req, _, next) => authorizeRequest(req, 'ADMIN'
     try {
         for (let i = 0; i < req.body.role.length; i++) {
             let body = req.body.role[i];
-            const { error } = await validateAssignRoleToUser(body)
+            const { error } = await validateAssignRoleToUser(body, req.language)
             if (error) {
                 const { details } = error;
                 const message = details.map(i => i.message).join(',');
@@ -112,7 +112,7 @@ router.post('/assignRoleToUser', (req, _, next) => authorizeRequest(req, 'ADMIN'
 });
 router.get('/assignRoleToUser', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateLoadAssignRoleToUser(req.query)
+        const { error } = await validateLoadAssignRoleToUser(req.query, req.language)
         if (error) {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
@@ -128,7 +128,7 @@ router.get('/assignRoleToUser', (req, _, next) => authorizeRequest(req, 'ADMIN',
 
 router.delete('/assignRoleToUser/:assignRoleToUserId', (req, _, next) => authorizeRequest(req, 'ADMIN', next),async (req, res, next) => {
     try {
-        const { error } = await validateDeleteRolesFromUser(req.params);
+        const { error } = await validateDeleteRolesFromUser(req.params, req.language);
         if (error) {
             const { details } = error; 
             const message = details.map(i => i.message).join(',');
