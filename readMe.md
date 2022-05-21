@@ -14,7 +14,7 @@
 
 
 ## Server Main
-The backend part of the project which connects to PostgreSQL for submitting and querying data it also includes utilities such as middleware in order to send every related request to fabric SDK as a gateway of fabirc network and fetch back requested data.
+The backend part of the project which connects to PostgreSQL for submitting and querying data it also includes utilities such as middleware in order to send every related request to fabric SDK as a gateway of fabirc network and fetch back requested  data.
 
 ## Smart Contracts
 The Sunyar's core has three chain codes. each chain code has some smart contracts: 
