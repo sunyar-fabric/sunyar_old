@@ -6,7 +6,7 @@ const { persianToTimestamp } = require('./utility/timestamp')
 const crypto = require("crypto-js");
 const _ = require('lodash');
 
-class NeedyToPlan extends Contract {
+class BeneficiaryToPlan extends Contract {
 
     // CreateAsset issues a new asset(needyToPlan) to the world state with given details.
     async CreateAsset(ctx, planHashCode, beneficiary) {
@@ -305,4 +305,4 @@ class NeedyToPlan extends Contract {
 
 }
 
-module.exports = NeedyToPlan;
+module.exports = BeneficiaryToPlan;

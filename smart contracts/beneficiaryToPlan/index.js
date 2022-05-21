@@ -6,7 +6,7 @@
 
 'use strict';
 
-const needyToPlan = require('./lib/needyToPlan');
+const beneficiaryToPlan = require('./lib/beneficiaryToPlan');
 
-module.exports.NeedyToPlan = needyToPlan;
-module.exports.contracts = [needyToPlan];
+module.exports.BeneficiaryToPlan = beneficiaryToPlan;
+module.exports.contracts = [beneficiaryToPlan];
