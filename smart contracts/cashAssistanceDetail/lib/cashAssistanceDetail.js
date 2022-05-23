@@ -6,8 +6,9 @@ const { persianToTimestamp } = require('./utility/timestamp')
 
 class CashAssistanceDetail extends Contract {
 
-    // CreateAsset issues a new asset(plan) to the world state with given details.
-    async CreateAsset(ctx, planHashCode, beneficiaryHashCode, neededPrice, minPrice, description) {
+    // CreateCashAssistance issues a new asset(plan) to the world state with given details.
+    async CreateCashAssistance(ctx, planHashCode, beneficiaryHashCode, neededPrice, minPrice, description) {
+
         neededPrice = Number(neededPrice)
         minPrice = Number(minPrice)
 
@@ -64,7 +65,8 @@ class CashAssistanceDetail extends Contract {
             if (!beneficiaryDidAssignToPlan) {
                 return {
                     status: "failed",
-                    msg: `The beneficiary ${beneficiaryHashCode} have not been assignd to this plan!`               }
+                    msg: `The beneficiary ${beneficiaryHashCode} have not been assignd to this plan!`
+                }
             }
 
         } else {
@@ -98,13 +100,25 @@ class CashAssistanceDetail extends Contract {
         return assetJSON.toString();
     }
 
-    // UpdateAsset updates an existing asset in the world state with provided parameters.
-    async UpdateAsset(ctx, planNameInput, ownerOrgNameInput, durationDateInput) {
-        const exists = await this.AssetExists(ctx, planHashCode);
-        if (!exists) {
-            throw new Error(`The asset ${planHashCode} does not exist`);
+    // UpdateCashAssistance updates an existing asset in the world state with provided parameters.
+    async UpdateCashAssistance(ctx, planHashCode, beneficiaryHashCode, neededPrice, minPrice, description) {
+
+        if (!planHashCode) {
+            return {
+                status: "failed",
+                msg: `The planHashCode can not be empty !`,
+            }
         }
 
+        const planExists = await this.AssetExists(ctx, planHashCode);
+        if (!planExists) {
+            return {
+                status: "failed",
+                msg: `The plan ${planHashCode} is not founded in the ledger!`,
+            }
+        }
+
+        // await GetBeneficiarysByPlan()
 
         //create key hash code
         let hashInput = planNameInput + ownerOrgNameInput;

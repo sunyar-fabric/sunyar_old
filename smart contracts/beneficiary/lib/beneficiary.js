@@ -15,36 +15,11 @@ var uuid = require('uuid');
 
 
 
-class AssetTransfer extends Contract {
+class Beneficiary extends Contract {
 
-    async InitLedger(ctx) {
-        const assets = [
-            {
-                BeneficiaryHashCode: "initialize1",
-                NationalCode: "0078539889",
-                BeneficiaryId: "_1",
-                BirthDate: "_1",
-                IsActive: "true" ,
-            },
-            {
-                BeneficiaryHashCode: "initialize2",
-                NationalCode: "0078539889",
-                BeneficiaryId: "_1",
-                BirthDate: "_1",
-                IsActive: "true" ,
-            },
-           
-        ];
 
-        for (const asset of assets) {
-            asset.docType = 'asset';
-            await ctx.stub.putState(asset.BeneficiaryHashCode, Buffer.from(JSON.stringify(asset)));
-            console.info(`Asset ${asset.BeneficiaryHashCode} initialized`);
-        }
-    }
-
-    // CreateAsset issues a new asset to the world state with given details.
-    async CreateAsset(ctx, nationalCodeInput, birthDateInput, isActiveInput) {
+    // CreateBeneficiary issues a new asset to the world state with given details.
+    async CreateBeneficiary(ctx, nationalCodeInput, birthDateInput, isActiveInput) {
           //check national code
           if (! checkCodeMeli(nationalCodeInput)){
             throw new Error(`The national code is wrong`);
@@ -166,4 +141,4 @@ class AssetTransfer extends Contract {
 
 }
 
-module.exports = AssetTransfer;
+module.exports = Beneficiary;

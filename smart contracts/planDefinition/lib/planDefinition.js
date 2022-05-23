@@ -8,8 +8,8 @@ const uuid = require('uuid');
 
 class PlanDefinition extends Contract {
 
-    // CreateAsset issues a new asset(plan) to the world state with given details.
-    async CreateAsset(ctx, planNameInput, ownerOrgNameInput, durationDateInput, parentPlanHashCode) {
+    // CreatePlan issues a new Plan(plan) to the world state with given details.
+    async CreatePlan(ctx, planNameInput, ownerOrgNameInput, durationDateInput, parentPlanHashCode) {
 
         if (!planNameInput || !ownerOrgNameInput || !durationDateInput) {
             throw new Error('Input values cannot be empty')
@@ -41,13 +41,36 @@ class PlanDefinition extends Contract {
         return JSON.stringify(asset);
     }
 
-    // ReadAsset returns the asset stored in the world state with given id.
-    async ReadAsset(ctx, beneficiaryHashCode) {
-        const assetJSON = await ctx.stub.getState(beneficiaryHashCode); // get the asset from chaincode state
+    // GetPlansByBeneficiary returns the asset stored in the world state with given beneficiaryHashCode.
+    async GetPlansByBeneficiary(ctx, beneficiaryHashCode) {
+        const assetJSON = await ctx.stub.getState(beneficiaryHashCode);
         if (!assetJSON || assetJSON.length === 0) {
-            throw new Error(`The asset ${beneficiaryHashCode} does not exist`);
+            return {
+                status: "failed",
+                msg: `The beneficiaryHashCode ${beneficiaryHashCode} is not founded in the ledger!`,
+            }
         }
-        return assetJSON.toString();
+
+        let plansInfo = await this.getBeneficiarysByPlanHashCodeProperty(ctx, beneficiaryHashCode);
+
+        if (plansInfo && plansInfo.length > 0) {
+            let planList = []
+            for (const el of plansInfo) {
+                planList.push(el.Record.planHashCode)
+            }
+            let result = {}
+            result.planList = []
+            for (const el of planList) {
+                let assetJSON = await ctx.stub.getState(`${el}${beneficiaryHashCode}`);
+                result.planList.push({
+                    planHashCode: el,
+                    cashAssistanceDetail: assetJSON.toString()
+                })
+            }
+            return result
+        } else {
+            return { msg: `There is not any plan that this beneficiaryHashCode ${beneficiaryHashCode} assigned to it!` }
+        }
     }
 
     // UpdateAsset updates an existing asset in the world state with provided parameters.
@@ -106,6 +129,13 @@ class PlanDefinition extends Contract {
         queryString.selector = {};
         queryString.selector.OwnerOrgName = {};
         queryString.selector.OwnerOrgName.$gt = null
+        return await this.getQuery(ctx, queryString)
+    }
+
+    async getBeneficiarysByPlanHashCodeProperty(ctx, key) {
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.beneficiaryHashCode = key;
         return await this.getQuery(ctx, queryString)
     }
 

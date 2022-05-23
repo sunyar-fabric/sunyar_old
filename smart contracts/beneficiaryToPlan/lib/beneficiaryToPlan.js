@@ -8,16 +8,18 @@ const _ = require('lodash');
 
 class BeneficiaryToPlan extends Contract {
 
-    // CreateAsset issues a new asset(needyToPlan) to the world state with given details.
-    async CreateAsset(ctx, planHashCode, beneficiary) {
-
+    // CreateBeneficiaryToPlan issues a new asset(needyToPlan) to the world state with given details.
+    async CreateBeneficiaryToPlan(ctx, planHashCode, beneficiary) {
         const beneficiaryObj = JSON.parse(beneficiary)
         let { beneficiaryHashCode: beneficiaryHashList, beneficiaryDuration } = beneficiaryObj
 
         // Existance plan
         const planExists = await this.getPlanByPlanHashCodeProperty(ctx, planHashCode)
         if (planExists.length === 0) {
-            throw new Error(`the plan ${planHashCode} is not founded in the ledger!`)
+            return {
+                status: "failed",
+                msg: `this plan ${planHashCode} is not founded in the ledger!`,
+            }
         }
 
         //Existance needy
@@ -30,7 +32,8 @@ class BeneficiaryToPlan extends Contract {
         }
         if (invalidBeneficiaryList.length > 0) {
             return {
-                msg: "operation is failed",
+                status: "failed",
+                msg: "The Beneficiarys are not founded in the ledger",
                 InvalidBeneficiaryHashList: invalidBeneficiaryList
             }
         }
@@ -38,38 +41,6 @@ class BeneficiaryToPlan extends Contract {
         //create beneficiaryDuration timestamp
         let date = beneficiaryDuration.split('/')
         beneficiaryDuration = persianToTimestamp(parseInt(date[0]), parseInt(date[1]), parseInt(date[2]))
-
-        // let assetJSON = await ctx.stub.getState(planHashCode); // get the asset from chaincode state
-        // if (Object.keys(assetJSON).length > 0) {
-        //     assetJSON = JSON.parse(assetJSON.toString())
-        //     const { needysList: oldNeedysHashList } = assetJSON
-        //     const newNeedysHashList = _.difference(beneficiaryHashList, oldNeedysHashList)
-        //     if (newNeedysHashList.length > 0) {
-        //         for (let needy of newNeedysHashList) {
-        //             let assetJSON = await ctx.stub.getState(needy);
-        //             assetJSON = JSON.parse(assetJSON.toString())
-        //             if (assetJSON?.IsActive == false) {
-        //                 invalidBeneficiaryList.push(needy)
-        //             }
-        //         }
-        //         if (invalidBeneficiaryList.length > 0) {
-        //             return { InvalidBeneficiaryHashList: invalidBeneficiaryList }
-        //         }
-        //         oldNeedysHashList.map(needy => newNeedysHashList.push(needy))
-        //         beneficiaryHashList = [...newNeedysHashList]
-        //     } else {
-        //         return { msg: `the beneficiaryHashList already added to this plan(${planHashCode}) ` }
-        //     }
-        // }
-
-        // const asset = {
-        //     planHashCode,
-        //     needysList: beneficiaryHashList,
-        //     beneficiaryDuration,
-        // };
-
-        // const result = await ctx.stub.putState(planHashCode, Buffer.from(JSON.stringify(asset)));
-        // return JSON.stringify(result);
 
         // Get beneficiarys are assigned to the plan
         const beneficiarys = await this.getBeneficiarysByPlanHashCodeProperty(ctx, planHashCode)
@@ -88,17 +59,24 @@ class BeneficiaryToPlan extends Contract {
                     }
                 }
                 if (invalidBeneficiaryList.length > 0) {
-                    return { InvalidBeneficiaryHashList: invalidBeneficiaryList }
+                    return {
+                        status: "failed",
+                        msg: "The Beneficiary is deactive",
+                        InvalidBeneficiaryHashList: invalidBeneficiaryList
+                    }
                 }
                 oldBeneficiarys.map(needy => newBeneficiarys.push(needy))
                 beneficiaryHashList = [...newBeneficiarys]
             } else {
-                return { msg: `the beneficiaryHashList already added to this plan(${planHashCode})` }
+                return {
+                    status: "failed",
+                    msg: `The BeneficiaryHashList already added to this plan(${planHashCode})`
+                }
             }
         }
 
         for (let beneficiaryHash of beneficiaryHashList) {
-            let key = `${beneficiaryHash} ${planHashCode}`
+            let key = `${beneficiaryHash}${planHashCode}`
             const asset = {
                 beneficiaryDuration,
                 planHashCode,
@@ -113,8 +91,9 @@ class BeneficiaryToPlan extends Contract {
         return JSON.stringify(asset);
     }
 
-    // ReadAsset returns the asset stored in the world state with given id.
-    async ReadAsset(ctx, planHashCode, planName, ownerOrgName) {
+    // GetBeneficiaryToPlan returns the asset stored in the world state with given planHashCode.
+    async GetBeneficiarysByPlan(ctx, planHashCode, planName, ownerOrgName) {
+
         if (!planHashCode && !planName && !ownerOrgName) {
             throw new Error(`input values can not be empty!`);
         }
@@ -127,49 +106,44 @@ class BeneficiaryToPlan extends Contract {
         // Existance plan
         const planExists = await this.getPlanByPlanHashCodeProperty(ctx, hash)
         if (planExists.length === 0) {
-            throw new Error(`the plan ${hash} is not founded in the ledger!`)
+            return {
+                status: "failed",
+                msg: `this plan ${hash} is not founded in the ledger!`,
+            }
         }
 
         let assetJSON = await this.getBeneficiarysByPlanHashCodeProperty(ctx, hash);
 
         if (assetJSON.length > 0) {
             let beneficiarysList = []
-            // let cashAssistanceDetailList = []
             for (const el of assetJSON) {
                 beneficiarysList.push(el.Record.beneficiaryHashCode)
             }
-            // console.log('-----*******------', beneficiarysList);
             let result = {}
             result.beneficiarys = []
             for (const el of beneficiarysList) {
                 let assetJSON = await ctx.stub.getState(`${hash}${el}`);
-                assetJSON = JSON.stringify(assetJSON.toString())
                 result.beneficiarys.push({
-                    beneficiaryHashCode: hash,
-                    cashAssistanceDetail: assetJSON
+                    beneficiaryHashCode: el,
+                    cashAssistanceDetail: assetJSON.toString()
                 })
-                // cashAssistanceDetailList.push(JSON.parse(assetJSON))
             }
-            console.log('-----------', result);
             return result
-
-            // let result = {}
-            // for (const el of object) {
-
-            // }
-
         } else {
             return { msg: `No beneficiary have been assigned to this plan ${hash}` }
         }
-        // assetJSON = assetJSON.toString()
-        // return assetJSON;
     }
 
-    // UpdateAsset updates an existing asset in the world state with provided parameters.
-    async UpdateAsset(ctx, nationalCodeInput, birthDateInput, isActiveInput) {
+    // UpdateBeneficiaryToPlan updates an existing asset in the world state with provided parameters.
+    async UpdateBeneficiaryToPlan(ctx, planHashCode, nationalCodeInput, birthDateInput, isActiveInput) {
+        
         const exists = await this.AssetExists(ctx, beneficiaryHashCode);
+        
         if (!exists) {
-            throw new Error(`The asset ${beneficiaryHashCode} does not exist`);
+            return {
+                status: "failed",
+                msg: `this plan ${planHashCode} is not founded in the ledger!`,
+            }
         }
 
         if (!checkCodeMeli(nationalCodeInput)) {
