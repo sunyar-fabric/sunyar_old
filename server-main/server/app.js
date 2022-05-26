@@ -1,4 +1,5 @@
-const express = require("express"); 
+//foo
+const express = require("express");
 const cookieParser = require("cookie-parser");
 const { saveLog, logging } = require("./utility/logging");
 const { errorHandling } = require("./utility/error/errorHandling");
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
   );
   req.charityConfig = charityConfig;
   next();
-});//foo
+});
 
 app.use(dontInjectMe);
 app.use(myLanguage);

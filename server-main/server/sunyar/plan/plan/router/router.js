@@ -6,7 +6,7 @@ const {authorizeRequest} = require("../../../../cms/um/jwt/compositeServices/aut
 const sunyarRouter = require('express').Router();
 
 
-sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ['AID'], next),async (req, res, next) => {
+sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ['AID'], next), async (req, res, next) => {
     try {
         const { error } = await validateCreatePlan(req.body, req.language);
         if (error) {

@@ -143,9 +143,10 @@ const wsLoadPersonalPaginate = async (context) => {
 };
 
 const wsCreatePersonal = async (context) => {
-  if (!context.auth) throw createError(GlobalExceptions.jwt.Forbidden);
-  if (context.params.personType != 2 && context.auth.roles.includes("AID"))
-    throw createError(GlobalExceptions.jwt.YouAID);
+  // if (!context.auth) throw createError(GlobalExceptions.jwt.Forbidden); //why this is here? i got it donator rout was  transaction based in user
+  
+  // if (context.params.personType != 2 && context.auth.roles.includes("AID"))
+  //   throw createError(GlobalExceptions.jwt.YouAID);
 
   let loadUniqFields = await loadPersonal(
     setContextInput(context, {

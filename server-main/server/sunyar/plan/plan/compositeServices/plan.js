@@ -30,18 +30,21 @@ const wsCreatePlan = async (context) => {
     throw createError(GlobalExceptions.db.InputsNotUnique);
   }
   //get parent plan fdate and tdate
-  const parentPlan = await loadPlan(
-    setContextInput(context, {
-      parentPlan: context.params.parentPlanId,
-    })
-  );
-  const parentPlanHashCode = parentPlan.output[0]?.planHashCode;
-  if (parentPlan.output[0]) {
-    if (
-      new Date(context.params.fDate) < new Date(parentPlan.output[0].fDate) ||
-      new Date(context.params.tDate) > new Date(parentPlan.output[0].tDate)
-    ) {
-      throw createError(GlobalExceptions.parentTime);
+  let parentPlanHashCode;
+  if (context.params.parentPlanId) {
+    const parentPlan = await loadPlan(
+      setContextInput(context, {
+        planId: context.params.parentPlanId,
+      })
+    );
+    parentPlanHashCode = parentPlan.output[0]?.planHashCode;
+    if (parentPlan.output[0]) {
+      if (
+        new Date(context.params.fDate) < new Date(parentPlan.output[0].fDate) ||
+        new Date(context.params.tDate) > new Date(parentPlan.output[0].tDate)
+      ) {
+        throw createError(GlobalExceptions.parentTime);
+      }
     }
   }
   context = await createPlan(

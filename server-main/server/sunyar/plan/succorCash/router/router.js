@@ -30,7 +30,8 @@ sunyarRouter.get('/',async (req, res, next) => {
     } catch (error) { next(error); }
 });
 
-sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ["ACCOUNTANT", "AID"], next),async (req, res, next) => {
+//(req, _, next) => authorizeRequest(req, ["ACCOUNTANT", "AID"], next)
+sunyarRouter.post('/',async (req, res, next) => {
     try {
 
         if(req.body.neededPrice || req.body.minPrice){

@@ -95,6 +95,10 @@ const validateLoadNeedyToPlan = async (body, language) => {
             'date.timestamp': `نوع ورودی باید تایم‌استمپ باشد`,
             'date.greater': `زمان پایان طرح باید بزرگتر از زمان شروع باشد`
         }).allow(null,"null"),
+        planHashCode: Joi.allow(),
+        planName: Joi.allow(),
+        ownerOrgName: Joi.allow(),
+        beneficiaryHashCode: Joi.allow(),
     });
     var schemaEn = Joi.object().keys({
         assignNeedyPlanId: Joi.number().integer().allow(null,"null"),

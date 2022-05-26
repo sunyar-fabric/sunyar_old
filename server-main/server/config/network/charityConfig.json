@@ -3,9 +3,9 @@
     "userId": "admin",
     "channelName": "mychannel",
     "chaincodeNames":{
-        "chaincodeName1": "needed",
+        "chaincodeName1": "beneficiary",
         "chaincodeName2": "planDefination",
-        "chaincodeName3": "needyToPlan",
+        "chaincodeName3": "beneficiaryToPlan",
         "chaincodeName4": "cashAssistanceDetail",
         "chaincodeName5": "payment",
         "chaincodeName6": "approvement",

@@ -31,7 +31,7 @@ class SunyarMiddlwareManager {
       return await this.socket.send(path,finalMessage);
     }
     catch(e){
-      console.log(e.message);
+      console.log(e);
       throw createError(GlobalExceptions.middleware)
     }
   }
@@ -51,7 +51,7 @@ class SunyarMiddlwareManager {
 
   setResponse(response){
     this.response = response;
-    console.log("XXX-response", response);
+    // console.log("XXX-response", response);
   }
 
 }

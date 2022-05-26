@@ -10,7 +10,7 @@ const initMiddleware = async function (req, res, next) {
   const socket = await initSocket(charityConfig.ip, {});
   const sunyarMidManager = new SunyarMiddlwareManager(socket);
   // sunyarMidManager.use(requestBuilder(charityConfig));
-  sunyarMidManager.use(morteza_test());
+  sunyarMidManager.use(requestBuilder(charityConfig));
   req.context.sunyarMidManager = sunyarMidManager;
   req.context.charityConfig = charityConfig;
   next();

@@ -22,67 +22,77 @@ const loadNeedyToPlan = async (context) => {
     const beneficiaryHashCode = context.input.beneficiaryHashCode;
     let args;
     let method;
+    let chaincode;
     if (planHashCode) {
       //CASH ASSISTANCE MUST BE IN ERESPONSE
       //NEEDY INFROMATION MUST BE IN RESPONSE
-      args = { planHashCode };
-      method = "getBeneficiaryByPlanHashCodeProperty";
-    }
-    if (planName && ownerOrgName) {
-      args = { planName, ownerOrgName };
-      method = "ReadAsset";
-    }
-    if (beneficiaryHashCode) {
+      args = { planHashCode, planName: "", ownerOrgName: "" };
+      method = "GetBeneficiarysByPlan";
+      chaincode = "chaincodeName3"
+    } else if (planName && ownerOrgName) {
+      args = { planHashCode: "", planName, ownerOrgName };
+      method = "GetBeneficiarysByPlan";
+      chaincode = "chaincodeName3";
+    } else if (beneficiaryHashCode) {
       //TEST MIDDLEWARE
       args = {
         beneficiaryHashCode,
       };
-      context = loadMiddleware(
-        context,
-        "chaincodeName2",
-        "query",
-        "ReadAsset",
-        args
-      );
+      method = "GetPlansByBeneficiary";
+      chaincode = "chaincodeName2";
       //TEST MIDDLEWARE
-      return setContextOutput(context, sunyarMidManager.response);
+    } else {
+      context = await setContextOutput(
+        context,
+        await NeedyToPlan.findAll({
+          where: context.input,
+          include: [
+            {
+              model: db.tblPersonal,
+              required: true,
+              attributes: {
+                exclude: ["personPhoto"],
+              },
+            },
+            {
+              model: db.tblPlan,
+              required: true,
+            },
+          ],
+        })
+      );
+      return context;
     }
-    if (method && args) {
+    if (method && args && chaincode) {
       const sunyarMidManager = context.sunyarMidManager;
       //TEST MIDDLEWARE
-      context = loadMiddleware(
-        context,
-        "chaincodeName3",
-        "query",
-        method,
-        args
-      );
+      context = loadMiddleware(context, chaincode, "query", method, args);
       await sunyarMidManager.send(context);
-      let needy = sunyarMidManager.response.map((needy) => needy.Record);
-      return setContextOutput(context, needy);
+      let result = [];
+      if (planHashCode) {
+        for (let beneficiary of sunyarMidManager.response.beneficiarys) {
+          if (beneficiary.cashAssistanceDetail) {
+            result.push({
+              beneficiaryHashCode: beneficiary.beneficiaryHashCode,
+              cashAssistanceDetail: JSON.parse(
+                beneficiary.cashAssistanceDetail
+              ),
+            });
+          }
+        }
+      } else if (beneficiaryHashCode) {
+        for (let plan of sunyarMidManager.response.planList) {
+          if (plan.cashAssistanceDetail) {
+            result.push({
+              planHashCode: plan.planHashCode,
+              cashAssistanceDetail: JSON.parse(plan.cashAssistanceDetail),
+            });
+          }
+        }
+      }
+      return setContextOutput(context, result);
       //TEST MIDDLEWARE
     }
-
-    context = await setContextOutput(
-      context,
-      await NeedyToPlan.findAll({
-        where: context.input,
-        include: [
-          {
-            model: db.tblPersonal,
-            required: true,
-            attributes: {
-              exclude: ["personPhoto"],
-            },
-          },
-          {
-            model: db.tblPlan,
-            required: true,
-          },
-        ],
-      })
-    );
-    return context;
   } catch (error) {
     console.log(error);
     await dbErrorHandling(error, context);
@@ -114,24 +124,17 @@ const createNeedyToPlan = async (context) => {
         const planHashCode = context.input.planHashCode;
         const planHasNeedy = context.input.planHasNeedy;
         const sunyarMidManager = context.sunyarMidManager;
-        if (planHasNeedy) {
-          //UpdateAsset
-          method = "UpdateAsset";
-          args = {
-            planHashCode,
-            benneficiaryAdd: bulkNeedyAddPlanTx,
-            beneficiaryDuration: [context.params.fDate, context.params.tDate],
-            benneficiaryDel: [],
-          };
-        } else {
-          //CreateAsset
-          method = "CreateAsset";
-          args = {
-            planHashCode,
-            beneficiaryHashCode: bulkNeedyAddPlanTx,
-            beneficiaryDuration: [context.params.fDate, context.params.tDate],
-          };
-        }
+        //CreateAsset
+        method = "CreateBeneficiaryToPlan";
+        let beneficiaryObj = {
+          beneficiaryHashCode: bulkNeedyAddPlanTx,
+          beneficiaryDuration: context.params.tDate,
+        };
+        beneficiaryObj = JSON.stringify(beneficiaryObj);
+        args = {
+          planHashCode,
+          beneficiaryObj,
+        };
         //TEST MIDDLEWARE
         context = loadMiddleware(context, "chaincodeName3", "tx", method, args);
         await sunyarMidManager.send(context);

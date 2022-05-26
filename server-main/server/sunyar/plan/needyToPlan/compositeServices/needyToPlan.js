@@ -52,7 +52,7 @@ const wsCreateNeedyToPlan = async (context) => {
   ) {
     throw createError(GlobalExceptions.plan.PlanFDateTDate);
   }
-
+  
   let bulkNeedyAddPlanTx = [];
   let lastId;
   for (let id of context.params.needyId) {

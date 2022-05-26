@@ -8,8 +8,9 @@ const initSocket = async (ip, options) => {
     socket.send = async function (path, finalMessage){
         try{ 
             // console.log("SENDING to...","http://"+ ip + "/" + path);
-            // console.log("[FINAL MSG]", finalMessage); 
-            // await socket.axios.post("http://localhost:8085/api/league/plan", finalMessage); //+ "/" + path //http://82.115.16.137:3000/api/  http://localhost:8085/api/league/plan
+            console.log("[FINAL MSG]", finalMessage); 
+            
+            await socket.axios.post("http://31.7.74.193:3000/api/setData", finalMessage); //+ "/" + path //http://82.115.16.137:3000/api/  http://localhost:8085/api/league/plan
             return;
         }
         catch(e){

@@ -56,7 +56,7 @@ const wsCreateSuccorCash = async (context) => {
       assignNeedyPlanId: context.params.assignNeedyPlanId,
     })
   );
-  needyId = needyId.output[0].needyId;
+  needyId = needyId.output[0].needyId; //must throw error if not exist!
   let secretCode = await loadPersonal(
     setContextInput(context, { personId: needyId })
   );
@@ -64,7 +64,7 @@ const wsCreateSuccorCash = async (context) => {
   context = await createSuccorCash(
     setContextInput(context, {
       planHashCode,
-      beneficiaryHash: secretCode,
+      beneficiaryHashCode: secretCode,
       assignNeedyPlanId: context.params.assignNeedyPlanId,
       planId: context.params.planId,
       neededPrice: context.params.neededPrice,

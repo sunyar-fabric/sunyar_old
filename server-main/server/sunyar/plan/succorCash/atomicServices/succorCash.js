@@ -78,7 +78,7 @@ const createSuccorCash = async (context) => {
         const args = {
           planHashCode: context.input.planHashCode,
           beneficiaryHashCode: context.input.beneficiaryHashCode,
-          neededPrice: context.input.planHashCode,
+          neededPrice: context.input.neededPrice,
           minPrice: context.input.minPrice,
           description: context.input.description,
         };
@@ -86,7 +86,7 @@ const createSuccorCash = async (context) => {
           context,
           "chaincodeName4",
           "tx",
-          "CreateAsset",
+          "CreateCashAssistance",
           args
         );
         await sunyarMidManager.send(context);

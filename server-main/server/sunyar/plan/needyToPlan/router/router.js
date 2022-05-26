@@ -45,6 +45,7 @@ sunyarRouter.get("/", async (req, res, next) => {
   }
 });
 
+//
 sunyarRouter.post(
   "/",
   (req, _, next) => authorizeRequest(req, ["AID"], next),
@@ -60,20 +61,13 @@ sunyarRouter.post(
         );
       }
 
-      const {
-        planId,
-        needyId,
-        fDate,
-        tDate,
-        // benHashes
-      } = req.body;
+      const { planId, needyId, fDate, tDate } = req.body;
 
       req.context.params = {
         planId,
         needyId,
         fDate,
         tDate,
-        // benHashes
       };
 
       req.context = await wsCreateNeedyToPlan(req.context);

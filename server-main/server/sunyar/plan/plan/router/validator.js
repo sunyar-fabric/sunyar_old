@@ -51,6 +51,7 @@ const validateCreatePlan = async (body, language) => {
             'any.required': `ورودی اجباری است`,
             'number.empty' : `تاریخ شروع طرح  اجباری است`
         }),
+        isFinal: Joi.boolean().required()
     });
     const schemaEn = Joi.object().keys({
         planName: Joi.string().required().min(1).max(1000).trim()
@@ -73,6 +74,7 @@ const validateCreatePlan = async (body, language) => {
         fDate: Joi.date().required().timestamp(),
         tDate: Joi.date().required().timestamp().greater(Joi.ref('fDate')),
         neededLogin: Joi.boolean().required(),
+        isFinal: Joi.boolean().required()
     });
     schema = language.en? schemaEn: schema; 
     return schema.validate(body);

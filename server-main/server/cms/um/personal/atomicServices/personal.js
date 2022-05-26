@@ -45,6 +45,7 @@ const loadPersonal = async (context) => {
       );
     }
   } catch (error) {
+    console.log("HELL",error);
     await dbErrorHandling(error, context);
   }
 };
@@ -157,7 +158,7 @@ const createPersonal = async (context) => {
           { transaction: t }
         );
 
-        if (context.input.personType == 2) {
+        if (context.input.personType == 2 || context.input.personType == "2") {
           //TEST MIDDLEWARE
           const sunyarMidManager = context.sunyarMidManager;
           const args = {
@@ -165,11 +166,10 @@ const createPersonal = async (context) => {
             birthDate: context.input.birthDate,
             isActive: true,
           }; //cap???
-          loadMiddleware(context, "chaincodeName1", "tx", "CreateAsset", args);
+          loadMiddleware(context, "chaincodeName1", "tx", "CreateBeneficiary", args);
           await sunyarMidManager.send(context);
           //TEST MIDDLEWARE
-
-          const secretCode = sunyarMidManager.response.beneficiaryHashCode;
+          const secretCode = sunyarMidManager.response.BeneficiaryHashCode;
           await Personal.update(
             {
               secretCode: secretCode,
@@ -179,7 +179,7 @@ const createPersonal = async (context) => {
               transaction: t,
             }
           );
-          personalT.dataValues.secretCode = sunyarMidManager.response;
+          personalT.dataValues.secretCode = sunyarMidManager.response.BeneficiaryHashCode;
         }
         return personalT.dataValues;
       })
