@@ -3,6 +3,8 @@
 
 const { Contract } = require('fabric-contract-api');
 const { persianToTimestamp } = require('./utility/timestamp')
+// import BeneficiaryToPlan  from '../../beneficiaryToPlan/lib/beneficiaryToPlan'
+const { BeneficiaryToPlan } = require('../../beneficiaryToPlan/lib/beneficiaryToPlan');
 
 class CashAssistanceDetail extends Contract {
 
@@ -23,7 +25,6 @@ class CashAssistanceDetail extends Contract {
         // Existence plan
         const planExists = await this.getPlanByPlanHashCodeProperty(ctx, planHashCode)
         if (planExists.length === 0) {
-            // throw new Error(`the plan ${planHashCode} is not founded in the ledger!`)
             return {
                 status: "failed",
                 msg: `the plan ${planHashCode} is not founded in the ledger!`
@@ -106,24 +107,52 @@ class CashAssistanceDetail extends Contract {
         if (!planHashCode) {
             return {
                 status: "failed",
-                msg: `The planHashCode can not be empty !`,
+                msg: `The planHashCode can not be empty!`,
             }
         }
 
-        const planExists = await this.AssetExists(ctx, planHashCode);
-        if (!planExists) {
+        // Existence plan
+        const planExists = await this.getPlanByPlanHashCodeProperty(ctx, planHashCode)
+        if (planExists.length === 0) {
             return {
                 status: "failed",
-                msg: `The plan ${planHashCode} is not founded in the ledger!`,
+                msg: `the plan ${planHashCode} is not founded in the ledger!`
             }
         }
 
-        // await GetBeneficiarysByPlan()
+        // Existence assigning
+        const beneficiaryToPlan = new BeneficiaryToPlan()
+        const result = await beneficiaryToPlan.GetBeneficiarysByPlan(ctx, planHashCode, '', '')
+        const { beneficiarys } = result
 
+        let flag = true;
+        for (let index = 0; index < beneficiarys.length; index++) {
+            if (beneficiarys[index].beneficiaryHashCode == beneficiaryHashCode) {
+                flag = false
+                break
+            }
+        }
+        if (flag) {
+            return {
+                status: "failed",
+                msg: `This beneficiaryHashCode ${beneficiaryHashCode} is not assigned to the plan!`
+            }
+        }
+
+        //Existence cashAssistance
+        const key = planHashCode + beneficiaryHashCode;
+        const cashAssistance = await this.AssetExists(ctx, key)
+        if (!cashAssistance) {
+            return {
+                status: "failed",
+                msg: `cashAssistance is not available in the world state with given info!`
+            }
+        }
+        
         //create key hash code
         let hashInput = planNameInput + ownerOrgNameInput;
         hashInput = await crypto.SHA256(hashInput);
-        let planHashCode = await hashInput.toString();
+        // let planHashCode = await hashInput.toString();
 
         //create DurationDate
         let date = []
@@ -145,9 +174,6 @@ class CashAssistanceDetail extends Contract {
     }
 
 
-
-
-
     // DeleteAsset deletes an given asset from the world state.
     async DeleteAsset(ctx, planHashCode) {
         const exists = await this.AssetExists(ctx, planHashCode);
@@ -158,12 +184,10 @@ class CashAssistanceDetail extends Contract {
     }
 
     // AssetExists returns true when asset with given planHashCode exists in world state.
-    async AssetExists(ctx, planHashCode) {
-        const assetJSON = await ctx.stub.getState(planHashCode);
+    async AssetExists(ctx, key) {
+        const assetJSON = await ctx.stub.getState(key);
         return assetJSON && assetJSON.length > 0;
     }
-
-
 
     // GetAllAssets returns all assets found in the world state.
     async GetAllAssets(ctx) {
