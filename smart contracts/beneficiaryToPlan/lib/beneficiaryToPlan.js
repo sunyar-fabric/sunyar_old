@@ -136,9 +136,9 @@ class BeneficiaryToPlan extends Contract {
 
     // UpdateBeneficiaryToPlan updates an existing asset in the world state with provided parameters.
     async UpdateBeneficiaryToPlan(ctx, planHashCode, nationalCodeInput, birthDateInput, isActiveInput) {
-        
+
         const exists = await this.AssetExists(ctx, beneficiaryHashCode);
-        
+
         if (!exists) {
             return {
                 status: "failed",
@@ -279,4 +279,4 @@ class BeneficiaryToPlan extends Contract {
 
 }
 
-module.exports = BeneficiaryToPlan;
+module.exports.BeneficiaryToPlan = BeneficiaryToPlan;
