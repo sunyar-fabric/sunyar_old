@@ -45,10 +45,10 @@ sunyarRouter.get("/", async (req, res, next) => {
   }
 });
 
-//
+
 sunyarRouter.post(
   "/",
-  (req, _, next) => authorizeRequest(req, ["AID"], next),
+  (req, _, next) => authorizeRequest(req, ["AID",], next),
   async (req, res, next) => {
     try {
       const { error } = await validateCreateNeedyToPlan(req.body, req.language);

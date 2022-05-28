@@ -26,10 +26,7 @@ const {
   loadNeedyToPlan,
 } = require("../../../../sunyar/plan/needyToPlan/atomicServices/needyToPlan");
 const { createUser, loadUser } = require("../../user/atomicServices/user");
-const {
-  loadMiddleware,
-} = require("../../../../utility/middleware/initMiddleware");
-const { param } = require("../router/router");
+
 
 const wsLoadPersonal = async (context) => {
   for (x in context.params) {

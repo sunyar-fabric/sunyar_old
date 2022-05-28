@@ -106,6 +106,8 @@ const validateLoadNeedyToPlan = async (body, language) => {
         needyId: Joi.number().integer().allow(null,"null"),
         fDate: Joi.date().timestamp().allow(null,"null"),
         tDate: Joi.date().timestamp().greater(Joi.ref('fDate')).allow(null,"null"),
+        planHashCode: Joi.allow(),
+
     });
     schema = language.en? schemaEn: schema; 
     return schema.validate(body);

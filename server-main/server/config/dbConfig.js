@@ -7,8 +7,8 @@ module.exports = {
   // DB: "sunyarDB",
   // DB: 'sunyarStage',  
   // DB:'sunyarDev', 
-  // DB:'sunyarTest',
-  DB: "SunyTest" ,
+  DB:'SunyTest',
+  // DB: "postgres" ,
   // DB: "sun1",
   
   // HOST: 'localhost',

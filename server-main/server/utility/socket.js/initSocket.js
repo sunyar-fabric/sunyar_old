@@ -12,7 +12,7 @@ const initSocket = async (ip, options) => {
             
             await socket.axios.post("http://31.7.74.193:3000/api/setData", finalMessage); //+ "/" + path //http://82.115.16.137:3000/api/  http://localhost:8085/api/league/plan
             return;
-        }
+        } 
         catch(e){
             console.log("FOO MIDDLEWARE",e);
             throw createError(GlobalExceptions.middleware)

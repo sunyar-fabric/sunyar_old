@@ -52,11 +52,11 @@ app.use("/api/sunyar", sunyar);
 app.use((error, _req, res, next) => {
   _req.context.error = error.message;
   errorHandling(error, _req, res, next);
-}); 
+});
 app.use(async (req, res, next) => {
   await saveLog(req, res, req.context, next);
 });
-initialize()
+initialize()   
   .catch((error) => {
     console.error(`Failed to initialize, error: ${error.message}`);
     process.exit(1);
@@ -65,4 +65,7 @@ initialize()
     app.listen(port, () => {
       console.log("Listening on port " + port + " ...");
     });
-  });
+  });  
+
+
+

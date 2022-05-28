@@ -70,23 +70,28 @@ const loadNeedyToPlan = async (context) => {
       await sunyarMidManager.send(context);
       let result = [];
       if (planHashCode) {
-        for (let beneficiary of sunyarMidManager.response.beneficiarys) {
-          if (beneficiary.cashAssistanceDetail) {
-            result.push({
-              beneficiaryHashCode: beneficiary.beneficiaryHashCode,
-              cashAssistanceDetail: JSON.parse(
-                beneficiary.cashAssistanceDetail
-              ),
-            });
+        if(sunyarMidManager.response.beneficiarys) {
+          for (let beneficiary of sunyarMidManager.response.beneficiarys) {
+            if (beneficiary.cashAssistanceDetail) {
+              result.push({
+                beneficiaryHashCode: beneficiary.beneficiaryHashCode,
+                cashAssistanceDetail: JSON.parse(
+                  beneficiary.cashAssistanceDetail
+                ),
+              });
+            }
           }
         }
+
       } else if (beneficiaryHashCode) {
-        for (let plan of sunyarMidManager.response.planList) {
-          if (plan.cashAssistanceDetail) {
-            result.push({
-              planHashCode: plan.planHashCode,
-              cashAssistanceDetail: JSON.parse(plan.cashAssistanceDetail),
-            });
+        if(sunyarMidManager.response.planList){
+          for (let plan of sunyarMidManager.response.planList) {
+            if (plan.cashAssistanceDetail) {
+              result.push({
+                planHashCode: plan.planHashCode,
+                cashAssistanceDetail: JSON.parse(plan.cashAssistanceDetail),
+              });
+            }
           }
         }
       }
