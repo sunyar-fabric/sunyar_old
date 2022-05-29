@@ -169,7 +169,7 @@ const createPersonal = async (context) => {
           loadMiddleware(context, "chaincodeName1", "tx", "CreateBeneficiary", args);
           await sunyarMidManager.send(context);
           //TEST MIDDLEWARE
-          const secretCode = sunyarMidManager.response.BeneficiaryHashCode;
+          const secretCode = sunyarMidManager.response?.BeneficiaryHashCode;
           await Personal.update(
             {
               secretCode: secretCode,
@@ -179,7 +179,7 @@ const createPersonal = async (context) => {
               transaction: t,
             }
           );
-          personalT.dataValues.secretCode = sunyarMidManager.response.BeneficiaryHashCode;
+          personalT.dataValues.secretCode = sunyarMidManager.response?.BeneficiaryHashCode;
         }
         return personalT.dataValues;
       })

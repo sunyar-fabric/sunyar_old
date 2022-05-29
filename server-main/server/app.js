@@ -8,9 +8,8 @@ const { authenticateByJWT } = require("./cms/um/jwt/compositeServices/jwt");
 const { forgetMyPass } = require("./cms/um/jwt/forgetMyPass");
 const cms = require("./cms/coreBizLogic/routing");
 const sunyar = require("./sunyar/coreBizLogic/routing");
-
 const { dontInjectMe } = require("./utility/fnPreventSqlInjection");
-const { myLanguage } = require("./utility/myLanguage");
+const { myLanguage } = require("./utility/myLanguage");  
 const { initMiddleware } = require("./utility/middleware/initMiddleware");
 
 const app = express();
@@ -19,9 +18,7 @@ const port = 8080;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
-
 const fs = require("fs");
-
 app.use(async (req, res, next) => {
   await logging(req, res, next);
   next();

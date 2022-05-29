@@ -15,7 +15,7 @@ sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ['AID'], next), a
             throw createError({ code: 2, message: message, httpStatusCode: 400 }, req.context);
         }
         const { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin, isFinal } = req.body;
-        req.context.params = { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin, isFinal };
+        req.context.params = { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin, isFinal: true };
         req.context = await wsCreatePlan(req.context);
         res.json(req.context.result);
         next();

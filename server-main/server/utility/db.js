@@ -10,7 +10,7 @@ const initialize = async () => {
     .catch((error) => console.log("Unable to connect to the DB", error)).then(async()=>{
         const socket = await initSocket()
         const { data } = await socket.axios.get("http://31.7.74.193:3000/api/");
-        console.log("Middleware is connected,", data.msg, ":)");
+        console.log("Middleware is connected,", data.msg || data.result, ":)");
     }).catch((error)=> console.log("Middleware can't connect to fabric SDK :(\n", error.message))
 };
 

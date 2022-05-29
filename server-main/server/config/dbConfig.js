@@ -7,9 +7,9 @@ module.exports = {
   // DB: "sunyarDB",
   // DB: 'sunyarStage',  
   // DB:'sunyarDev', 
-  DB:'SunyTest',
+  // DB:'SunyTest', //home
   // DB: "postgres" ,
-  // DB: "sun1",
+  DB: "sunyarTest",
   
   // HOST: 'localhost',
   // PASSWORD: 'saman136757',
@@ -17,7 +17,7 @@ module.exports = {
 
   USER: 'postgres',
   dialect: 'postgres',
-  port: 5432, 
+  port: 5433, 
  
   pool: {
     max: 5,
