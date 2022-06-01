@@ -3,7 +3,7 @@
     "userId": "admin",
     "channelName": "mychannel",
     "chaincodeNames":{
-        "chaincodeName1": "beneficiary",
+        "chaincodeName1": "beneficiary1",
         "chaincodeName2": "planDefination",
         "chaincodeName3": "beneficiaryToPlan",
         "chaincodeName4": "cashAssistanceDetail",
