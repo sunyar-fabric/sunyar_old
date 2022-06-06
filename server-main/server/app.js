@@ -56,8 +56,9 @@ app.use((error, _req, res, next) => {
 app.use(async (req, res, next) => {
   await saveLog(req, res, req.context, next);
 });
-initialize()   
-  .catch((error) => {
+
+initialize() 
+  .catch(async (error) => {
     console.error(`Failed to initialize, error: ${error.message}`);
     process.exit(1);
   })
@@ -65,7 +66,4 @@ initialize()
     app.listen(port, () => {
       console.log("Listening on port " + port + " ...");
     });
-  });  
-
-
-
+  });

@@ -20,18 +20,18 @@ sunyarRouter.post('/', (req, _, next) => authorizeRequest(req, ['AID'], next), a
         res.json(req.context.result);
         next();
     } catch (error) { next(error); }
-});
+}); 
 
-//(req, _, next) => authorizeRequest(req, ["AID"], next)
-sunyarRouter.put('/:planId',async (req, res, next) => {
+//
+sunyarRouter.put('/:planId', (req, _, next) => authorizeRequest(req, ["AID"], next), async (req, res, next) => {
     try {
         // const { error } = await validateUpdatePlan(req.body, req.params.planId, req.language)
         // if (error) {
         //     const { details } = error;
         //     const message = details.map(i => i.message).join(',');
         //     throw createError({ code: 2, message: message, httpStatusCode: 400 }, req.context);
-        // }
-        const planId = req.params.planId;
+        // }    
+        const planId = req.params.planId; 
         const { planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin, } = req.body;
         req.context.params = { planId, planName, description, planNature, parentPlanId, icon, fDate, tDate, neededLogin, };
         req.context = await wsUpdatePlan(req.context);

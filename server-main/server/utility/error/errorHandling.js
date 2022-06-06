@@ -39,7 +39,8 @@ const errorHandling = (error, _req, res, next) => {
         error.message = exploredError.message;
     }
   }
-  if (error.isApplicationException) {
+  if (error.isApplicationException) { 
+    console.log("FUCKING HELL", error);
     res
     .status(error.httpStatusCode)
       .json({ code: error.code, message: error.message });

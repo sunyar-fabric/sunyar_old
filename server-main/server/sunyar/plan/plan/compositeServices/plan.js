@@ -84,8 +84,7 @@ const wsUpdatePlan = async (context) => {
   }
 
   if (isFinal == true) {
-    console.log("HAHAHAHHAHHAHAHHAA");
-    throw createError(context, GlobalExceptions.planIsFinal);
+    throw createError(GlobalExceptions.planIsFinal);
   }
   if (isFinal == false) {
     context = await updatePlan(
@@ -116,8 +115,8 @@ const wsUpdatePlan = async (context) => {
       tDate: plan.tDate,
       neededLogin: plan.neededLogin,
     };
+    return context;
   }
-  return context;
 };
 
 const wsLoadPlan = async (context) => {
