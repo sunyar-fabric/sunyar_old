@@ -173,7 +173,7 @@ const wsDeleteNeedyToPlan = async (context) => {
   const deletedSecretCode = deletedNeedy.output[0].secretCode;
   context.params.bulkNeedyDel.push({
     beneficiaryHashCode: deletedSecretCode,
-    beneficiaryDuration: [fDate, tDate],
+    beneficiaryDuration: tDate,
   });
   //find plan needys
   //seperate deleted ids
@@ -186,7 +186,7 @@ const wsDeleteNeedyToPlan = async (context) => {
         );
         context.params.bulkNeedyAdd.push({
           beneficiaryHashCode: needy.output[0].secretCode,
-          beneficiaryDuration: [context.params.fDate, context.params.tDate],
+          beneficiaryDuration: context.params.tDate,
         });
       }
     }

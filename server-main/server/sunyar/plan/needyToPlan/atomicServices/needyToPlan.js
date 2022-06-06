@@ -199,14 +199,14 @@ const deleteNeedyToPlan = async (context) => {
         const sunyarMidManager = context.sunyarMidManager;
         args = {
           planHashCode: context.input.planHashCode,
-          benneficiaryAdd: context.input.bulkNeedyAdd,
-          benneficiaryDel: context.input.bulkNeedyDel,
+          changedBeneficiaryObj: JSON.stringify([]), //context.input.bulkNeedyAdd,
+          deletedBeneficiaryObj: JSON.stringify(context.input.bulkNeedyDel),  
         };
         context = loadMiddleware(
           context,
           "chaincodeName3",
           "tx",
-          "UpdateAsset",
+          "UpdateBeneficiaryToPlan",
           args
         );
         await sunyarMidManager.send(context);
