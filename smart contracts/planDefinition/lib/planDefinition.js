@@ -7,7 +7,32 @@ const crypto = require("crypto-js");
 const uuid = require('uuid');
 
 class PlanDefinition extends Contract {
+    async InitLedger(ctx) {
+        const assets = [
+            {
+                PlanHashCode: "initialize1",
+                PlanName: "0078539889",
+                OwnerOrgName: "_1",
+                DurationDate: "_1",
+            
+            },
+            {
+                PlanHashCode: "initialize2",
+                PlanName: "0078539889",
+                OwnerOrgName: "_1",
+                DurationDate: "_1",
+            },
+        
+        ];
 
+        for (const asset of assets) {
+            asset.docType = 'asset';
+            await ctx.stub.putState(asset.PlanHashCode, Buffer.from(JSON.stringify(asset)));
+            console.info(`Asset ${asset.PlanHashCode} initialized`);
+        }
+    }
+
+    
     // CreatePlan issues a new Plan(plan) to the world state with given details.
     async CreatePlan(ctx, planNameInput, ownerOrgNameInput, durationDateInput, parentPlanHashCode) {
 
