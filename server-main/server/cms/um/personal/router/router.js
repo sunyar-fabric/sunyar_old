@@ -53,7 +53,7 @@ router.get(
   (req, _, next) => authorizeRequest(req, "AID", next),
   async (req, res, next) => {
     try {
-      const { page, name, family, nationalCode, sex, personType } = req.query;
+      const { page, name, family, nationalCode, sex, personType, isActive } = req.query;
       req.context.params = {
         page,
         name,
@@ -61,6 +61,7 @@ router.get(
         nationalCode,
         sex,
         personType,
+        isActive
       };
       req.context = await wsLoadPersonalSearch(req.context);
       res.set("count", req.context.count).json(req.context.result);

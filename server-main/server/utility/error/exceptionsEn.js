@@ -372,6 +372,11 @@ const GlobalExceptionsEn = {
     message: "For this settlement NGO's name is required",
     httpStatusCode: 400,
   },
+  planIsFinal: {
+    code: 67,
+    message: "Plan is recorded at ledger and you can't update it!",
+    httpStatusCode: 400,
+  },
 };
 
 module.exports = { GlobalExceptionsEn };

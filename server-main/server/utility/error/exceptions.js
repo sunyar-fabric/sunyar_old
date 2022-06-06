@@ -368,6 +368,11 @@ const GlobalExceptions = {
     message: "برای تسویه با موسسه، نام موسسه اجباری است",
     httpStatusCode: 400,
   },
+  planIsFinal: {
+    code: 67,
+    message: "طرح ثبت نهایی شده و قابل ویرایش نیست",
+    httpStatusCode: 400,
+  },
 };
 
 module.exports = { GlobalExceptions };

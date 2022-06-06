@@ -41,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(1000),
             allowNull: true,
             defaultValue: null
+        },
+        isFinal: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     }, {
         schema: "PM",

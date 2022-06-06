@@ -7,12 +7,12 @@ const requestBuilder = (charityConfig) => {
     inbound(response) {
       //  response.data.log = {time: new Date(), status:response.status, headers:response.headers, data: response.data}
       //handle errors here? don't
-      let data = response.response.data
-      if (data?.r?.includes("Failed")) {
-        console.log("[CHAINCODE ERROR]",data.r);
+      let data = response.response.data;
+      if (data.message?.includes("error")) { //data?.r?.includes("Failed") || data?.message?.includes("No valid responses from any peers")
+        console.log("[CHAINCODE ERROR]", data);
         throw createError(GlobalExceptions.middleware);
       }
-      console.log("[CHAINCODE RESPONSE]",data);
+      console.log("[CHAINCODE RESPONSE]", data);
       return data;
     },
     outbound(message) {
@@ -21,7 +21,7 @@ const requestBuilder = (charityConfig) => {
         userId: charityConfig.userId,
         channelName: charityConfig.channelName,
         chaincodeName: message.data.chaincodeName,
-        data: { func: message.data.function, ...message.data.args },
+        data: { function: message.data.function, ...message.data.args },
       };
     },
   };

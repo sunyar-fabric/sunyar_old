@@ -68,6 +68,7 @@ const getPersonal = async (context) => {
 
 const loadPersonalSearch = async (context) => {
   try {
+
     let input = context.input;
     let offset = 20 * parseInt(input.page);
     const query = {};
@@ -80,6 +81,10 @@ const loadPersonalSearch = async (context) => {
       if (input.sex === "false") query.sex = false;
     }
     if (input.personType) query.personType = input.personType;
+
+    if (input.isActive) {
+      // if(input.isActive == "")
+      query.isActive = input.isActive};
     return setContextOutput(
       context,
       await Personal.findAndCountAll({
@@ -95,6 +100,7 @@ const loadPersonalSearch = async (context) => {
 
 const loadPersonalPersonType = async (context) => {
   try {
+    if(context.params.IsActive == "true") context.input.isActive = true;
     context.input.personType = ["1", "3"];
     return await setContextOutput(
       context,
@@ -169,7 +175,7 @@ const createPersonal = async (context) => {
           loadMiddleware(context, "chaincodeName1", "tx", "CreateBeneficiary", args);
           await sunyarMidManager.send(context);
           //TEST MIDDLEWARE
-          const secretCode = sunyarMidManager.response?.BeneficiaryHashCode;
+          const secretCode = sunyarMidManager.response.BeneficiaryHashCode;
           await Personal.update(
             {
               secretCode: secretCode,
@@ -179,7 +185,7 @@ const createPersonal = async (context) => {
               transaction: t,
             }
           );
-          personalT.dataValues.secretCode = sunyarMidManager.response?.BeneficiaryHashCode;
+          personalT.dataValues.secretCode = sunyarMidManager.response.BeneficiaryHashCode;
         }
         return personalT.dataValues;
       })
@@ -294,28 +300,34 @@ const deletePersonal = async (context) => {
     return await setContextOutput(
       context,
       await db.sequelize.transaction(async (t) => {
-        let deleteResultT = await Personal.update(
-          {
-            isActive: false,
-          },
-          {
-            where: { personId: context.input.personId },
-            transaction: t,
-          }
-        );
+        // let deleteResultT = await Personal.update(
+        //   {
+        //     isActive: false,
+        //   },
+        //   {
+        //     where: { personId: context.input.personId },
+        //     transaction: t,
+        //   }
+        // );
+        deleteResultT = await Personal.destroy({
+          where: { personId: context.input.personId },
+          transaction: t,
+        });
         //TEST MIDDLEWARE
         const person = context.input.person;
         const sunyarMidManager = context.sunyarMidManager;
         if (person.secretCode && person.personType == 2) {
           const args = {
             beneficiaryHashCode: person.secretCode,
-            IsActive: false,
+            // nationalCodeInput: person.nationalCode, 
+            // birthDateInput: person.birthDate,
+            // IsActive: false,
           };
           context = loadMiddleware(
             context,
             "chaincodeName1",
             "tx",
-            "UpdateAsset",
+            "DeleteAsset",
             args
           );
           await sunyarMidManager.send(context);
@@ -326,6 +338,7 @@ const deletePersonal = async (context) => {
       })
     );
   } catch (error) {
+    console.log("khata",error);
     await dbErrorHandling(error, context);
   }
 };

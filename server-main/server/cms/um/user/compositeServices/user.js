@@ -130,6 +130,7 @@ const wsLogin = async (context) => {
         throw createError(GlobalExceptions.user.UserNotFound, context)
     }
     const user = context.output;
+
     if (user.active === false && !user.bannedTime) {
         throw createError(GlobalExceptions.user.UserExpired, context);
     }

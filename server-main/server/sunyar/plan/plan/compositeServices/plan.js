@@ -75,40 +75,48 @@ const wsUpdatePlan = async (context) => {
       parentPlanId: context.params.parentPlanId,
     })
   );
+  const isFinal = loadUniques.output[0].isFinal;
   if (
     loadUniques.output[0] != null &&
     loadUniques.output[0].planId != context.params.planId
   ) {
     throw createError(GlobalExceptions.db.InputsNotUnique);
   }
-  context = await updatePlan(
-    setContextInput(context, {
-      planId: context.params.planId,
-      planName: context.params.planName, //remove it
-      description: context.params.description,
-      planNature: context.params.planNature,
-      parentPlanId: context.params.parentPlanId,
-      icon: context.params.icon,
-      fDate: context.params.fDate,
-      tDate: context.params.tDate,
-      neededLogin: context.params.neededLogin,
-    })
-  );
-  if (!context) {
-    throw createError(GlobalExceptions.plan.PlanNotFound);
+
+  if (isFinal == true) {
+    console.log("HAHAHAHHAHHAHAHHAA");
+    throw createError(context, GlobalExceptions.planIsFinal);
   }
-  let plan = context.output;
-  context.result = {
-    planId: plan.palnId,
-    planName: plan.planName,
-    description: plan.description,
-    planNature: plan.planNature,
-    parentPlanId: plan.parentPlanId,
-    icon: plan.icon,
-    fDate: plan.fDate,
-    tDate: plan.tDate,
-    neededLogin: plan.neededLogin,
-  };
+  if (isFinal == false) {
+    context = await updatePlan(
+      setContextInput(context, {
+        planId: context.params.planId,
+        planName: context.params.planName,
+        description: context.params.description,
+        planNature: context.params.planNature,
+        parentPlanId: context.params.parentPlanId,
+        icon: context.params.icon,
+        fDate: context.params.fDate,
+        tDate: context.params.tDate,
+        neededLogin: context.params.neededLogin,
+      })
+    );
+    if (!context) {
+      throw createError(GlobalExceptions.plan.PlanNotFound);
+    }
+    let plan = context.output;
+    context.result = {
+      planId: plan.palnId,
+      planName: plan.planName,
+      description: plan.description,
+      planNature: plan.planNature,
+      parentPlanId: plan.parentPlanId,
+      icon: plan.icon,
+      fDate: plan.fDate,
+      tDate: plan.tDate,
+      neededLogin: plan.neededLogin,
+    };
+  }
   return context;
 };
 

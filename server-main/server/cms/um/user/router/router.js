@@ -96,7 +96,7 @@ router.post('/login', async (req, res, next) => {
             const { details } = error;
             const message = details.map(i => i.message).join(',');
             throw createError({ code: 1, message: message, httpStatusCode: 400 }, req.context);
-        }
+        }   
         const { username, password, refreshToken} = req.body;
         req.context.params = { username, password, refreshToken };
         req.context = await wsLogin(req.context);

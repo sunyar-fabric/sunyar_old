@@ -4,7 +4,7 @@
     "channelName": "mychannel",
     "chaincodeNames":{
         "chaincodeName1": "beneficiary1",
-        "chaincodeName2": "planDefination",
+        "chaincodeName2": "planDefinition",
         "chaincodeName3": "beneficiaryToPlan",
         "chaincodeName4": "cashAssistanceDetail",
         "chaincodeName5": "payment",

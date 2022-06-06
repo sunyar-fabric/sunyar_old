@@ -87,7 +87,7 @@ const validateUpdatePlan = async (body, planId, language) => {
             'number.empty': `شناسه طرح اجباری است`,
             'any.required': `شناسه طرح اجباری است`
         }),
-        planName: Joi.forbidden(),
+        planName: Joi.allow(),
         description: Joi.string().allow(null,"")
         .custom((value, helper)=>{
             if(preventSqlInjectionV2(value)){
@@ -122,6 +122,7 @@ const validateUpdatePlan = async (body, planId, language) => {
             'boolean.base': `نوع ورودی صحیح نمی‌باشد`,
             'any.required': `ورودی اجباری است`
         }),
+        //isFinal: Joi.boolean().allow(),
     });
     const schemaEn = Joi.object().keys({
         planId: Joi.number().integer().required(),
@@ -142,7 +143,9 @@ const validateUpdatePlan = async (body, planId, language) => {
         icon: Joi.string().max(15),
         fDate: Joi.date().required().timestamp(),
         tDate: Joi.date().required().timestamp().greater(Joi.ref('fDate')),
-        neededLogin: Joi.boolean().required()
+        neededLogin: Joi.boolean().required(),
+        //isFinal: Joi.boolean().allow(null,"null"),
+
     });
     schema = language.en? schemaEn: schema; 
     return schema.validate(body, );

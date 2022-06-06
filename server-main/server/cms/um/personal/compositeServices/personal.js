@@ -62,6 +62,7 @@ const wsLoadPersonalSearch = async (context) => {
       nationalCode: context.params.nationalCode,
       sex: context.params.sex,
       personType: context.params.personType,
+      isActive: context.params.isActive
     })
   );
   context.result = context.output.rows.map((p) => {

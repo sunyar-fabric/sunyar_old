@@ -2,16 +2,18 @@ const db = require("../config/dbIndex");
 const { initSocket } = require("./socket.js/initSocket");
 const initialize = async () => {
   await db.sequelize
-    .sync()  
+    .sync()
     .then(async () => {
       console.log("Connection to DB established successfully");
-      await defineRoles();
+      await defineRoles();  
     })
-    .catch((error) => console.log("Unable to connect to the DB", error)).then(async()=>{
-        const socket = await initSocket()
-        const { data } = await socket.axios.get("http://31.7.74.193:3000/api/");
-        console.log("Middleware is connected,", data.msg || data.result, ":)");
-    }).catch((error)=> console.log("Middleware can't connect to fabric SDK :(\n", error.message))
+    .catch((error) => console.log("Unable to connect to the DB", error))
+    .then(async () => {  
+      const socket = await initSocket()
+
+      const { data } = await socket.axios.get("http://185.110.190.132:4001/connect");
+      console.log("Middleware is connected,", data.msg || data.result || "", ":)");
+    }).catch((error) => console.log("Middleware can't connect to fabric SDK :(\n", error.message))
 };
 
 const defineRoles = async () => {
@@ -22,7 +24,7 @@ const defineRoles = async () => {
       { roleId: 2, faName: "حسابدار", enName: "AID" },
       { roleId: 3, faName: "مددکار", enName: "ACCOUNTANT" },
     ]);
-  } catch {}
+  } catch { }
 };
 
 /**
