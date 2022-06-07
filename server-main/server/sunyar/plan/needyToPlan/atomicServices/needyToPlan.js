@@ -171,12 +171,11 @@ const updateNeedyToPlan = async (context) => {
           transaction: t,
         }
       );
-      //changedBeneficiaryHashList
       //TEST MIDDLEWARE
       const sunyarMidManager = context.sunyarMidManager;
       let args = {
         planHashCode: context.input.planHashCode,
-        deletedBeneficiaryObj: "", //JSON.stringify({})  //is there any error here?
+        deletedBeneficiaryObj: "{}", 
         changedBeneficiaryObj: JSON.stringify({
           changedBeneficiaryHashList: context.input.changedBeneficiaryHashList,
           changedBeneficiaryDuration: context.input.tDate,
@@ -219,7 +218,7 @@ const deleteNeedyToPlan = async (context) => {
         const sunyarMidManager = context.sunyarMidManager;
         args = {
           planHashCode: context.input.planHashCode,
-          changedBeneficiaryObj: JSON.stringify([]), //context.input.bulkNeedyAdd,
+          changedBeneficiaryObj: "{}", //context.input.bulkNeedyAdd,
           deletedBeneficiaryObj: JSON.stringify(context.input.bulkNeedyDel),
         };
         context = loadMiddleware(
@@ -230,10 +229,10 @@ const deleteNeedyToPlan = async (context) => {
           args
         );
         await sunyarMidManager.send(context);
-        context.result = setContextOutput(
-          context,
-          sunyarMidManager.response
-        ).output;
+        // context.result = setContextOutput(
+        //   context,
+        //   sunyarMidManager.response
+        // ).output;
         //TEST MIDDLEWARE
         return deleteNeedyToPlanT;
       })
