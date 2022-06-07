@@ -112,22 +112,29 @@ const wsUpdateNeedyToPlan = async (context) => {
     throw createError(GlobalExceptions.plan.PlanFDateTDate);
   }
 
-  const benChanged = [];
-  const benDeleted = [];
+  // const benChanged = [];
+  const changedBeneficiaryHashList = [];
+  // const benDeleted = [];
+  let benHashChanged = [];
 
-  for (let i; i < context.params.benHashChanged.length; i++) {
-    benChanged[i] = {
-      beneficiaryHashCode: context.params.benHashChanged[i],
-      beneficiaryDuration: [context.params.fDate, context.params.tDate],
+  //update needy tDate
+  for (let j; j < context.params.needyId.length; j++) {
+    const needy = await loadPersonal(
+      setContextInput(context, { personId: context.params.needyId[j] })
+    );
+    const needyHashCode = needy.output[0].secretCode;
+    changedBeneficiaryHashList[j] = {
+      beneficiaryHashCode: needyHashCode,
+      // beneficiaryDuration: context.params.tDate,
     };
   }
 
-  for (let i; i < context.params.benHashDeleted.length; i++) {
-    benDeleted[i] = {
-      beneficiaryHashCode: context.params.benHashDeleted[i],
-      beneficiaryDuration: [context.params.fDate, context.params.tDate],
-    };
-  }
+  // for (let i; i < context.params.benHashDeleted.length; i++) {
+  //   benDeleted[i] = {
+  //     beneficiaryHashCode: context.params.benHashDeleted[i],
+  //     beneficiaryDuration: [context.params.fDate, context.params.tDate],
+  //   };
+  // }
 
   context = await updateNeedyToPlan(
     setContextInput(context, {
@@ -137,8 +144,7 @@ const wsUpdateNeedyToPlan = async (context) => {
       fDate: context.params.fDate,
       tDate: context.params.tDate,
       planHashCode: loadPlanDate.output[0].planHashCode,
-      benChanged,
-      benDeleted,
+      changedBeneficiaryHashList,
     })
   );
   context.result = context.output;

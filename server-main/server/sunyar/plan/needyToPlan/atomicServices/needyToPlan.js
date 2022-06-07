@@ -28,7 +28,7 @@ const loadNeedyToPlan = async (context) => {
       //NEEDY INFROMATION MUST BE IN RESPONSE
       args = { planHashCode, planName: "", ownerOrgName: "" };
       method = "GetBeneficiarysByPlan";
-      chaincode = "chaincodeName3"
+      chaincode = "chaincodeName3";
     } else if (planName && ownerOrgName) {
       args = { planHashCode: "", planName, ownerOrgName };
       method = "GetBeneficiarysByPlan";
@@ -70,7 +70,7 @@ const loadNeedyToPlan = async (context) => {
       await sunyarMidManager.send(context);
       let result = [];
       if (planHashCode) {
-        if(sunyarMidManager.response.beneficiarys) {
+        if (sunyarMidManager.response.beneficiarys) {
           for (let beneficiary of sunyarMidManager.response.beneficiarys) {
             if (beneficiary.cashAssistanceDetail) {
               result.push({
@@ -82,9 +82,8 @@ const loadNeedyToPlan = async (context) => {
             }
           }
         }
-
       } else if (beneficiaryHashCode) {
-        if(sunyarMidManager.response.planList){
+        if (sunyarMidManager.response.planList) {
           for (let plan of sunyarMidManager.response.planList) {
             if (plan.cashAssistanceDetail) {
               result.push({
@@ -172,6 +171,27 @@ const updateNeedyToPlan = async (context) => {
           transaction: t,
         }
       );
+      //changedBeneficiaryHashList
+      //TEST MIDDLEWARE
+      const sunyarMidManager = context.sunyarMidManager;
+      let args = {
+        planHashCode: context.input.planHashCode,
+        deletedBeneficiaryObj: "", //JSON.stringify({})  //is there any error here?
+        changedBeneficiaryObj: JSON.stringify({
+          changedBeneficiaryHashList: context.input.changedBeneficiaryHashList,
+          changedBeneficiaryDuration: context.input.tDate,
+        }),
+      };
+      context = loadMiddleware(
+        context,
+        "chaincodeName3",
+        "tx",
+        "UpdateBeneficiaryToPlan",
+        args
+      );
+      await sunyarMidManager.send(context);
+
+      //TEST MIDDLEWARE
       if (updateResult[0] == 1) {
         return await setContextOutput(
           context,
@@ -200,7 +220,7 @@ const deleteNeedyToPlan = async (context) => {
         args = {
           planHashCode: context.input.planHashCode,
           changedBeneficiaryObj: JSON.stringify([]), //context.input.bulkNeedyAdd,
-          deletedBeneficiaryObj: JSON.stringify(context.input.bulkNeedyDel),  
+          deletedBeneficiaryObj: JSON.stringify(context.input.bulkNeedyDel),
         };
         context = loadMiddleware(
           context,
