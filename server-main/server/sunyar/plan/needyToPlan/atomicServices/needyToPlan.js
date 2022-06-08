@@ -142,23 +142,24 @@ const createNeedyToPlan = async (context) => {
         //TEST MIDDLEWARE
         context = loadMiddleware(context, "chaincodeName3", "tx", method, args);
         await sunyarMidManager.send(context);
-        context.result = setContextOutput(
-          context,
-          sunyarMidManager.response
-        ).output;
+        // context.result = setContextOutput(
+        //   context,
+        //   sunyarMidManager.response
+        // ).output;
         //TEST MIDDLEWARE
         needyToPlanTx.response = context.result;
         return needyToPlanTx;
       })
     );
   } catch (error) {
+    console.log(error);
     await dbErrorHandling(error, context);
   }
 };
 
 const updateNeedyToPlan = async (context) => {
   try {
-    db.sequelize.transaction(async (t) => {
+    return setContextOutput(context, await db.sequelize.transaction(async (t) => {
       let updateResult = await NeedyToPlan.update(
         {
           planId: context.input.planId,
@@ -190,14 +191,17 @@ const updateNeedyToPlan = async (context) => {
       );
       await sunyarMidManager.send(context);
 
+      let result = await NeedyToPlan.findByPk(context.input.assignNeedyPlanId);
       //TEST MIDDLEWARE
       if (updateResult[0] == 1) {
-        return await setContextOutput(
-          context,
-          await NeedyToPlan.findByPk(context.input.assignNeedyPlanId)
-        );
+        // context = setContextOutput(
+        //   context,
+        //   result
+        // );
+        return result
       }
-    });
+
+    }))
   } catch (error) {
     await dbErrorHandling(error, context);
   }

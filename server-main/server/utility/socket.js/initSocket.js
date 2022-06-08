@@ -10,7 +10,7 @@ const initSocket = async (ip, options) => {
             // console.log("SENDING to...","http://"+ ip + "/" + path);
             console.log("[FINAL MSG]", finalMessage); 
             
-            await socket.axios.post("http://185.110.190.190:4000/" + path ,finalMessage); //+ "/" + path //http://82.115.16.137:3000/api/  http://localhost:8085/api/league/plan
+            // await socket.axios.post("http://185.110.190.190:4000/" + path ,finalMessage); //+ "/" + path //http://82.115.16.137:3000/api/  http://localhost:8085/api/league/plan
             return;
         } 
         catch(e){

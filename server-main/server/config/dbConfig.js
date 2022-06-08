@@ -11,13 +11,13 @@ module.exports = {
   // DB: "postgres" ,
   // DB: "sun1",
   
-  HOST: '185.221.237.129', //192.168.1.158
-  PASSWORD: 'postgres',
-  DB: 'sunyar',
+  HOST: 'localhost', //192.168.1.158  185.221.237.129  
+  PASSWORD: '1',  //postgres
+  DB: 'sunyarTest',
 
   USER: 'postgres',
   dialect: 'postgres',
-  port: 5432, 
+  port: 5433, 
  
   pool: {
     max: 5,

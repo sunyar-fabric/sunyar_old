@@ -101,9 +101,11 @@ const wsCreateNeedyToPlan = async (context) => {
 };
 
 const wsUpdateNeedyToPlan = async (context) => {
+// return
   let loadPlanDate = await loadPlan(
     setContextInput(context, { planId: context.params.planId })
   );
+  let planHashCode = loadPlanDate.output[0].planHashCode;
   if (
     Date.parse(loadPlanDate.output[0].fDate) >
       Date.parse(context.params.fDate) ||
@@ -111,6 +113,8 @@ const wsUpdateNeedyToPlan = async (context) => {
   ) {
     throw createError(GlobalExceptions.plan.PlanFDateTDate);
   }
+
+
 
   //check if any there is any payment 
   
@@ -130,10 +134,11 @@ const wsUpdateNeedyToPlan = async (context) => {
   // }
 
   //update needy tDate
-  for (let j; j < context.params.needyId.length; j++) {
-    const needy = await loadPersonal(
+  for (let j=0; j < context.params.needyId.length; j++) {
+    let needy = await loadPersonal(
       setContextInput(context, { personId: context.params.needyId[j] })
-    );
+      );
+      
     // if(needy.fDate/1000 < new Date()/1000){
     //   //must delete 
     // }
@@ -160,10 +165,13 @@ const wsUpdateNeedyToPlan = async (context) => {
       needyId: context.params.needyId,
       fDate: context.params.fDate,
       tDate: context.params.tDate,
-      planHashCode: loadPlanDate.output[0].planHashCode,
+      planHashCode,
       changedBeneficiaryHashList,
     })
   );
+
+
+
   context.result = context.output;
 
   return context;
