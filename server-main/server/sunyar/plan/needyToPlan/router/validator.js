@@ -26,7 +26,7 @@ const validateCreateNeedyToPlan = async (body, language) => {
         needyId: Joi.array().items(Joi.number()).required(),
         fDate: Joi.date(),
         tDate: Joi.date().timestamp().greater(Joi.ref('fDate')),
-        benHashes: Joi.exist()
+        // benHashes: Joi.exist()
     });
     // console.log("THIS", language);
     schema = language.en? schemaEn: schema; 
@@ -45,10 +45,8 @@ const validateUpdateNeedyToPlan = async (body, language) => {
             'number.empty': `ورودی  طرح اجباری است`,
             'any.required': `ورودی  طرح اجباری است`
         }),
-        needyId: Joi.number().integer().required().messages({
-            'number.base': `نوع ورودی نیازمند صحیح نمیاشد`,
-            'number.empty': `ورودی  نیازمند اجباری است`,
-            'any.required': `ورودی  نیازمند اجباری است`
+        needyId: Joi.array().items(Joi.number()).required().messages({
+            'array.base': `نوع ورودی شناسه نیازمند صحیح نمیاشد`,
         }),
         fDate: Joi.date().timestamp().messages({
             'date.base': `زمان شروع طرح واردشده صحیح نمی‌باشد`,
@@ -64,10 +62,11 @@ const validateUpdateNeedyToPlan = async (body, language) => {
     });
     var schemaEn = Joi.object().keys({
         assignNeedyPlanId: Joi.number().integer().required(),
-        planId: Joi.number().integer().required(),
-        needyId: Joi.number().integer().required(),
+        planId: Joi.array().items(Joi.number()).required(),
+        needyId: Joi.array().items(Joi.number()).required(),
         fDate: Joi.date().timestamp(),
         tDate: Joi.date().timestamp().greater(Joi.ref('fDate')),
+        
     });
     schema = language.en? schemaEn: schema; 
     return schema.validate(body);

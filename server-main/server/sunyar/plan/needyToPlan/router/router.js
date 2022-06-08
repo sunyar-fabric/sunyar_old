@@ -101,8 +101,8 @@ sunyarRouter.put(
         needyId,
         fDate,
         tDate,
-        benHashChanged,
-        benHashDeleted,
+        // benHashChanged,
+        // benHashDeleted,
       } = req.body;
 
       req.context.params = {
@@ -111,8 +111,8 @@ sunyarRouter.put(
         needyId,
         fDate,
         tDate,
-        benHashChanged,
-        benHashDeleted,
+        // benHashChanged,
+        // benHashDeleted,
       };
 
       req.context = await wsUpdateNeedyToPlan(req.context);

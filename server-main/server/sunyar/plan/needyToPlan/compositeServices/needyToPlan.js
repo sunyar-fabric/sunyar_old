@@ -112,22 +112,39 @@ const wsUpdateNeedyToPlan = async (context) => {
     throw createError(GlobalExceptions.plan.PlanFDateTDate);
   }
 
+  //check if any there is any payment 
+  
+
   // const benChanged = [];
   const changedBeneficiaryHashList = [];
   // const benDeleted = [];
-  let benHashChanged = [];
+  // let benHashChanged = [];
+
+  // context = await loadPayment(
+  //   setContextInput(context, { needyId: context.params.personId })
+  // );
+  // if(context.output && context.params.fDate){
+    // set now date
+    // context.params.fDate = new Date();
+    // else delete it?
+  // }
 
   //update needy tDate
   for (let j; j < context.params.needyId.length; j++) {
     const needy = await loadPersonal(
       setContextInput(context, { personId: context.params.needyId[j] })
     );
+    // if(needy.fDate/1000 < new Date()/1000){
+    //   //must delete 
+    // }
     const needyHashCode = needy.output[0].secretCode;
     changedBeneficiaryHashList[j] = {
       beneficiaryHashCode: needyHashCode,
       // beneficiaryDuration: context.params.tDate,
     };
   }
+
+
 
   // for (let i; i < context.params.benHashDeleted.length; i++) {
   //   benDeleted[i] = {

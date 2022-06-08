@@ -130,20 +130,20 @@ router.post(
   "/",
   async (req, res, next) => {
     try {
-      // let errorHandling = {}
-      // switch (true) {
-      //     case (req.body.personType == 2):
-              // errorHandling = await validateCreateNeedy(req.body, req.language)
-      //         break;
-      //     default:
-      //         errorHandling = await validateCreatePersonal(req.body, req.language)
-      //         break;
-      // }
-      // if (errorHandling.error) {
-      //     const { details } = errorHandling.error;
-      //     const message = details.map(i => i.message).join(',');
-      //     throw createError({ code: 1, message: message, httpStatusCode: 400 }, req.context);
-      // }
+      let errorHandling = {}
+      switch (true) {
+          case (req.body.personType == 2):
+              errorHandling = await validateCreateNeedy(req.body, req.language)
+              break;
+          default:
+              errorHandling = await validateCreatePersonal(req.body, req.language)
+              break;
+      }
+      if (errorHandling.error) {
+          const { details } = errorHandling.error;
+          const message = details.map(i => i.message).join(',');
+          throw createError({ code: 1, message: message, httpStatusCode: 400 }, req.context);
+      }
 
       const {
         name,
