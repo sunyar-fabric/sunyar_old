@@ -100,9 +100,9 @@ router.get(
   }
 );
 
+//(req, _, next) => authorizeRequest(req, ["AID"], next)
 router.get(
   "/personalPagination",
-  (req, _, next) => authorizeRequest(req, ["AID"], next),
   async (req, res, next) => {
     try {
       const { error } = await validateLoadPersonal(req.query, req.language);
@@ -125,9 +125,10 @@ router.get(
   }
 );
 
-//(req, _, next) => authorizeRequest(req, ["AID"], next)
+
 router.post(
   "/",
+  (req, _, next) => authorizeRequest(req, ["AID"], next),
   async (req, res, next) => {
     try {
       let errorHandling = {}

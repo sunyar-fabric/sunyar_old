@@ -27,7 +27,6 @@ const {
 } = require("../../../../sunyar/plan/needyToPlan/atomicServices/needyToPlan");
 const { createUser, loadUser } = require("../../user/atomicServices/user");
 
-
 const wsLoadPersonal = async (context) => {
   for (x in context.params) {
     if (context.params[x] == "null") {
@@ -62,7 +61,7 @@ const wsLoadPersonalSearch = async (context) => {
       nationalCode: context.params.nationalCode,
       sex: context.params.sex,
       personType: context.params.personType,
-      isActive: context.params.isActive
+      isActive: context.params.isActive,
     })
   );
   context.result = context.output.rows.map((p) => {
@@ -122,7 +121,30 @@ const wsLoadPersonalPaginate = async (context) => {
   context = await loadPersonalPaginate(
     setContextInput(context, context.params)
   );
-  context.result = context.output.rows.map((p) => {
+  const now = new Date();
+  const notExpired = [];
+
+  for (let p of context.output.rows) {
+    // check if personal is needy and has any plan assignment to it
+    if (p.personType == 2 || p.personType == "2") {
+      let needyToPlan = await loadNeedyToPlan(
+        setContextInput(context, { needyId: p.personId })
+      );
+      if (needyToPlan.output[0]) {
+        console.log(
+          "THis needy tDate",
+          new Date(needyToPlan.output[0].tDate) < now
+        );
+        if (new Date(needyToPlan.output[0].tDate) < now) {
+          continue;
+        }
+      }
+    }
+    notExpired.push(p);
+  }
+
+  context.result = notExpired.map((p) => {
+    //context.output.rows
     return {
       personId: p.personId,
       name: p.name,
@@ -142,7 +164,7 @@ const wsLoadPersonalPaginate = async (context) => {
 
 const wsCreatePersonal = async (context) => {
   // if (!context.auth) throw createError(GlobalExceptions.jwt.Forbidden); //why this is here? i got it donator rout was  transaction based in user
-  
+
   // if (context.params.personType != 2 && context.auth.roles.includes("AID"))
   //   throw createError(GlobalExceptions.jwt.YouAID);
 

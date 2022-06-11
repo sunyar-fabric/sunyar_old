@@ -214,7 +214,6 @@ const _helper_get_plans_admin = async (plans, parentPlanHashCode, context) => {
       let parent_plan = await loadPlan(
         setContextInput(context, { planId: plan.parentPlanId })
       );
-      console.log("asd", parent_plan);
       parent_plan = parent_plan.output[0];
       if (parent_plan.planHashCode == parentPlanHashCode) {
         console.log("FOUND A CHILD !");

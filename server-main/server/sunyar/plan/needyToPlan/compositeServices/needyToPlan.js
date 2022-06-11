@@ -99,14 +99,13 @@ const wsCreateNeedyToPlan = async (context) => {
   };
   return context;
 };
-
 const wsUpdateNeedyToPlan = async (context) => {
 // return
   let loadPlanDate = await loadPlan(
     setContextInput(context, { planId: context.params.planId })
   );
   let planHashCode = loadPlanDate.output[0].planHashCode;
-  if (
+  if ( 
     Date.parse(loadPlanDate.output[0].fDate) >
       Date.parse(context.params.fDate) ||
     Date.parse(loadPlanDate.output[0].tDate) < Date.parse(context.params.tDate)

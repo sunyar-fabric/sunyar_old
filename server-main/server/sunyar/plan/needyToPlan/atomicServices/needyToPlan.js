@@ -71,8 +71,13 @@ const loadNeedyToPlan = async (context) => {
       let result = [];
       if (planHashCode) {
         if (sunyarMidManager.response.beneficiarys) {
+          //check if beneficiary is not expired
+          const nowTimeStamp = new Date().getTime();
           for (let beneficiary of sunyarMidManager.response.beneficiarys) {
-            if (beneficiary.cashAssistanceDetail) {
+            if (
+              beneficiary.cashAssistanceDetail &&
+              nowTimeStamp < beneficiary.beneficiaryDuration
+            ) {
               result.push({
                 beneficiaryHashCode: beneficiary.beneficiaryHashCode,
                 cashAssistanceDetail: JSON.parse(
@@ -159,49 +164,54 @@ const createNeedyToPlan = async (context) => {
 
 const updateNeedyToPlan = async (context) => {
   try {
-    return setContextOutput(context, await db.sequelize.transaction(async (t) => {
-      let updateResult = await NeedyToPlan.update(
-        {
-          planId: context.input.planId,
-          needyId: context.input.needyId,
-          fDate: context.input.fDate,
-          tDate: context.input.tDate,
-        },
-        {
-          where: { assignNeedyPlanId: context.input.assignNeedyPlanId },
-          transaction: t,
+    return setContextOutput(
+      context,
+      await db.sequelize.transaction(async (t) => {
+        let updateResult = await NeedyToPlan.update(
+          {
+            planId: context.input.planId,
+            needyId: context.input.needyId,
+            fDate: context.input.fDate,
+            tDate: context.input.tDate,
+          },
+          {
+            where: { assignNeedyPlanId: context.input.assignNeedyPlanId },
+            transaction: t,
+          }
+        );
+        //TEST MIDDLEWARE
+        const sunyarMidManager = context.sunyarMidManager;
+        let args = {
+          planHashCode: context.input.planHashCode,
+          deletedBeneficiaryObj: "{}",
+          changedBeneficiaryObj: JSON.stringify({
+            changedBeneficiaryHashList:
+              context.input.changedBeneficiaryHashList,
+            changedBeneficiaryDuration: context.input.tDate,
+          }),
+        };
+        context = loadMiddleware(
+          context,
+          "chaincodeName3",
+          "tx",
+          "UpdateBeneficiaryToPlan",
+          args
+        );
+        await sunyarMidManager.send(context);
+
+        let result = await NeedyToPlan.findByPk(
+          context.input.assignNeedyPlanId
+        );
+        //TEST MIDDLEWARE
+        if (updateResult[0] == 1) {
+          // context = setContextOutput(
+          //   context,
+          //   result
+          // );
+          return result;
         }
-      );
-      //TEST MIDDLEWARE
-      const sunyarMidManager = context.sunyarMidManager;
-      let args = {
-        planHashCode: context.input.planHashCode,
-        deletedBeneficiaryObj: "{}", 
-        changedBeneficiaryObj: JSON.stringify({
-          changedBeneficiaryHashList: context.input.changedBeneficiaryHashList,
-          changedBeneficiaryDuration: context.input.tDate,
-        }),
-      };
-      context = loadMiddleware(
-        context,
-        "chaincodeName3",
-        "tx",
-        "UpdateBeneficiaryToPlan",
-        args
-      );
-      await sunyarMidManager.send(context);
-
-      let result = await NeedyToPlan.findByPk(context.input.assignNeedyPlanId);
-      //TEST MIDDLEWARE
-      if (updateResult[0] == 1) {
-        // context = setContextOutput(
-        //   context,
-        //   result
-        // );
-        return result
-      }
-
-    }))
+      })
+    );
   } catch (error) {
     await dbErrorHandling(error, context);
   }
