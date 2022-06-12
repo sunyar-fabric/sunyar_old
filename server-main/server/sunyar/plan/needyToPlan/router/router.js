@@ -45,9 +45,9 @@ sunyarRouter.get("/", async (req, res, next) => {
   }
 });
 
-//(req, _, next) => authorizeRequest(req, ["AID",], next)
+//
 sunyarRouter.post(
-  "/",
+  "/",(req, _, next) => authorizeRequest(req, ["AID",], next),
   async (req, res, next) => {
     try {
       const { error } = await validateCreateNeedyToPlan(req.body, req.language);
@@ -78,12 +78,12 @@ sunyarRouter.post(
   }
 );
 
-//(req, _, next) => authorizeRequest(req, ["AID"], next)
+//
 sunyarRouter.put(
-  "/:assignNeedyPlanId",
+  "/",(req, _, next) => authorizeRequest(req, ["AID"], next),
   async (req, res, next) => {
     try {
-      req.body.assignNeedyPlanId = req.params.assignNeedyPlanId;
+      // req.body.assignNeedyPlanId = req.params.assignNeedyPlanId;
       const { error } = await validateUpdateNeedyToPlan(req.body, req.language);
       if (error) {
         const { details } = error;
