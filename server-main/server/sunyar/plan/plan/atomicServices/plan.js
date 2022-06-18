@@ -242,7 +242,7 @@ const loadPlanTreeAll = async (context) => {
 
     context = loadMiddleware(
       context,
-      "chaincodeName2",
+      "chaincodeName2",  
       "tx",
       "GetAllPlans",
       args
