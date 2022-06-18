@@ -15,6 +15,7 @@ const OperationList = require('./operationList.js');
 const QueryUtils = require('./queries.js');
 const {checkCodeMeli} = require("../utility/validation");
 const {v4} = require("uuid");
+const { GlobalExceptions } = require('../utility/exceptions.js');
 
 
 /**
@@ -61,22 +62,22 @@ class OperationContract extends Contract {
 
     async CreateOperation(ctx, planHashCode, beneficiaryHashCode, amount, dateTime, sourceNgoName, targetNgoName, status, donerNationalCode) {
         if (!planHashCode || !beneficiaryHashCode || !amount || !sourceNgoName || !status || !dateTime) {
-            throw new Error(`Invalid null inputs for operation`);
+            return GlobalExceptions.operation.common.inputError;
         }
         if (!targetNgoName && status != "002") {
-            throw new Error(`Invalid null-targetNgoName input for operation`);
+            return GlobalExceptions.operation.common.nullTargetNgoName;
         }
         if (!donerNationalCode && status == "001") {
+            return GlobalExceptions.operation.common.nullDonerNationalCode;
             throw new Error(`Invalid null-donerNationalCode input for operation`);
         }
         if(!checkCodeMeli(donerNationalCode) && status=="001"){
-            throw new Error(`Invalid national-code input for operation`);
+            return GlobalExceptions.operation.common.InvalidNationalCode;
         }
-
         let now = new Date().getTime();
         const five_min = 5 * 60 * 1000;
         if (Number(dateTime) + five_min < now) {
-            throw new Error(`Invalid date-time input for operation. 5 minutes TIMEOUT! \nyourdate-time:${dateTime}\nnow:${now}`);
+            return GlobalExceptions.operation.common.dateTime
         }
 
         //init utils
@@ -85,9 +86,9 @@ class OperationContract extends Contract {
         if (!beneficiary) throw new Error(`Beneficiary not found!`);
         let beneficiaryToPlan = await query.query_main({ planHashCode, beneficiaryHashCode, class: "org.sunyar.beneficiartyToPlan" });
         console.log("*************beneficiaryToPlan****************", beneficiaryToPlan); 
-        if (!beneficiaryToPlan || beneficiaryToPlan.length == 0) throw new Error(`Beneficiary is not allocated to this plan`);//cashAssistanceList+"plan"+"ben"
+        if (!beneficiaryToPlan || beneficiaryToPlan.length == 0) return GlobalExceptions.operation.common.beneficiaryNotAllocated  
         beneficiaryToPlan = beneficiaryToPlan[0].Record;//cashAssistanceListasdlfkjbadskjf
-        let cash_assistance = await query.query_main({BeneficiaryHashCode:beneficiaryHashCode, PlanHashCode:planHashCode, class: "org.sunyar.x"});
+        let cash_assistance = await query.query_main({BeneficiaryHashCode:beneficiaryHashCode, PlanHashCode:planHashCode, class: "org.sunyar.cashAssistance"}); //x
         console.log("*************cash_assistance****************", cash_assistance); 
         let minPrice = cash_assistance[0].Record.MinPrice;
         let neededPrice = cash_assistance[0].Record.NeededPrice;
@@ -117,10 +118,9 @@ class OperationContract extends Contract {
                 //B = min price
                 //C = all donated with
                 // let A=(B=(C=0));
-                if (amount < minPrice) throw new Error(`Payment is NOT enough for this beneficiary min is: `, minPrice);
-                if (amount + all_donated > neededPrice) throw new Error(`Payment is more than expected: `, neededPrice);
+                if (amount < minPrice) return GlobalExceptions.operation.approvement.notEnough
+                if (amount + all_donated > neededPrice) return GlobalExceptions.operation.approvement.moreThanNeededPrice
                 operation.setDonated();
-                console.log("donations");
                 break;
             case "002":
                 //****if op is going to be DonatedApproved
