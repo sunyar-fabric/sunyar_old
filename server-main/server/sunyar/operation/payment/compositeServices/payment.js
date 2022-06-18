@@ -107,9 +107,9 @@ const wsLoadSettelment = async (context) => {
 
 const wsCreatePayment = async (context) => {
   if (
-    !context.params.targetNgoName ||
-    !context.params.planHashCode ||
-    !context.params.beneficiaryHashCode
+    !context.params.targetNgoName
+    // !context.params.planHashCode ||
+    // !context.params.beneficiaryHashCode
   )
     throw createError(GlobalExceptions.paymentNullInputs);
   let A, C;

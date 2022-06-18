@@ -87,7 +87,6 @@ sunyarRouter.post("/", async (req, res, next) => {
       targetNgoName: "Org2MSP", //??? targetNgoName
       sourceNgoName: req.charityConfig.orgMSP, //???
     };
-
     req.context = await wsCreatePayment(req.context);
     res.json(req.context.result);
     next();

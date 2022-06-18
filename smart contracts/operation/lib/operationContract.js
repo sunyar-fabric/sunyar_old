@@ -77,6 +77,7 @@ class OperationContract extends Contract {
         }
         console.log("*************donations_approved****************", all_donations_approved);
         let operation;
+        amount = Number(amount);
         switch (status) {
             case "001":
                 operation = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, dateTime, sourceNgoName, targetNgoName, status, donerNationalCode);
@@ -86,15 +87,14 @@ class OperationContract extends Contract {
                 break;
             case "002":
                 operation = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, dateTime, sourceNgoName, "", status, "");
-                console.log("*************all minPrice*************", minPrice);
-                console.log("*************all amount*************", amount);
-                amount = Number(amount);
+                console.log("*************minPrice*************", minPrice);
+                console.log("*************amount*************", amount);
                 if (amount + all_donations_approved > neededPrice) return GlobalExceptions.operation.approvement.moreThanNeededPrice
                 if (amount + all_donations_approved > all_donated) return GlobalExceptions.operation.approvement.notEnough
+                operation.totalPaymentPrice = all_donated;
                 operation.setDonatedApproved();
                 break;
             case "003":
-                amount = Number(amount);
                 operation = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, dateTime, sourceNgoName, targetNgoName, status, "");
                 all_donations_approved;
                 let settled_operations = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "003", sourceNgoName });
@@ -129,7 +129,7 @@ class OperationContract extends Contract {
 
 
         await ctx.operationList.addOperation(operation);
-        operation.tracking_code = v4();
+        operation.trackingCode = v4();
         return operation;
     }
 

@@ -145,7 +145,7 @@ const createPayment = async (context) => {
           context,
           "chaincodeName5",
           "tx",
-          "CreateAsset",
+          "CreateOperation",
           args
         );
         await sunyarMidManager.send(context);
@@ -170,6 +170,7 @@ const createPayment = async (context) => {
           await sunyarMidManager.send(context);
           //calculate total price!!!
           paymentT.totalPaymentPrice = sunyarMidManager.response.totalPaymentPrice;
+          paymentT.trackingCode = sunyarMidManager.response.trackingCode;
         //TEST MIDDLEWARE
         }
         return paymentT;

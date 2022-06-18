@@ -56,13 +56,26 @@ const createSettelment = async (context) => {
         );
         //TEST MIDDLEWARE
         const sunyarMidManager = context.sunyarMidManager;
-        let args = {
+
+        /*
+          planHashCode: context.input.planHashCode,
+          beneficiaryHashCode: context.input.beneficiaryHashCode,
+          amount: context.input.paymentPrice,
+          dateTime: context.input.paymentDate,
+          sourceNgoName: context.charityConfig.orgMSP,
+          targetNgoName: context.input.targetNgoName,
+          status: "001",
+          donatorNationalCode: context.input.donatorNationalCode,
+        */
+        let args = {  
           planHashCode: context.input.planName,
           beneficiaryHashCode: context.charityConfig.orgMSP,
           amout: context.input.paymentPrice,
           dateTime: context.input.paymentDate,
           sourceNgoName: context.input.sourceNgoName,
+          targetNgoName: '',
           status: context.input.status,
+          donatorNationalCode: ''
         };
         let chaincodeName = "";
         if (context.input.status == "002") {
@@ -75,7 +88,7 @@ const createSettelment = async (context) => {
           context,
           chaincodeName,
           "tx",
-          "CreateAsset",
+          "CreateOperation",
           args
         );
         await sunyarMidManager.send(context);
