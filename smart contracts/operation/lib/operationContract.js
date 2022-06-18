@@ -69,7 +69,6 @@ class OperationContract extends Contract {
         }
         if (!donerNationalCode && status == "001") {
             return GlobalExceptions.operation.common.nullDonerNationalCode;
-            throw new Error(`Invalid null-donerNationalCode input for operation`);
         }
         if(!checkCodeMeli(donerNationalCode) && status=="001"){
             return GlobalExceptions.operation.common.InvalidNationalCode;
@@ -83,7 +82,7 @@ class OperationContract extends Contract {
         //init utils
         let query = new QueryUtils(ctx, 'org.sunyar.operation', {Operation});
         let beneficiary = await query.query_main({beneficiaryHashCode});// i made a beneficiary based on Operation class but when all contracts are done remove || Operation  ----> shut-up
-        if (!beneficiary) throw new Error(`Beneficiary not found!`);
+        if (!beneficiary) return GlobalExceptions.operation.common.beneficiaryNotFound;
         let beneficiaryToPlan = await query.query_main({ planHashCode, beneficiaryHashCode, class: "org.sunyar.beneficiartyToPlan" });
         console.log("*************beneficiaryToPlan****************", beneficiaryToPlan); 
         if (!beneficiaryToPlan || beneficiaryToPlan.length == 0) return GlobalExceptions.operation.common.beneficiaryNotAllocated  
