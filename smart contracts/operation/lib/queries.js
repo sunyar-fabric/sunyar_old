@@ -1,16 +1,8 @@
-/*
- * Copyright IBM Corp. All Rights Reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
-*/
+
 'use strict';
 
 const State = require('../../ledger-api/state.js');
-//const CommercialPaper = require('./paper.js');
-/**
- * Query Class for query functions such as history etc
- *
- */
+
 class QueryUtils {
 
     constructor(ctx, listName, supported_classes={}) {
@@ -19,14 +11,7 @@ class QueryUtils {
         this.supportedClasses = supported_classes;
     }
 
-    // =========================================================================================
-    // getAssetHistory takes the composite key as arg, gets returns results as JSON to 'main contract'
-    // =========================================================================================
-    /**
-    * Get Asset History for a commercial paper
-    * @param {String} issuer the CP issuer
-    * @param {String} paperNumber commercial paper number
-    */
+
     async getAssetHistory(issuer, paperNumber) {
 
         let ledgerKey = await this.ctx.stub.createCompositeKey(this.name, [issuer, paperNumber]);
@@ -36,29 +21,12 @@ class QueryUtils {
         return results;
     }
 
-    // ===========================================================================================
-    // queryKeyByPartial performs a partial query based on the namespace and  asset key prefix provided
-
-    // Read-only function results are not typically submitted to ordering. If the read-only
-    // results are submitted to ordering, or if the query is used in an update transaction
-    // and submitted to ordering, then the committing peers will re-execute to guarantee that
-    // result sets are stable between endorsement time and commit time. The transaction is
-    // invalidated by the committing peers if the result set has changed between endorsement
-    // time and commit time.
-    // 
-    // ===========================================================================================
-    /**
-    * queryOwner commercial paper
-    * @param {String} assetspace the asset space (eg MagnetoCorp's assets)
-    */
     async queryKeyByPartial(assetspace) {
 
         if (arguments.length < 1) {
             throw new Error('Incorrect number of arguments. Expecting 1');
         }
-        // ie namespace + prefix to assets etc eg 
-        // "Key":"org.papernet.paperMagnetoCorp0001"   (0002, etc)
-        // "Partial":'org.papernet.paperlistMagnetoCorp"'  (using partial key, find keys "0001", "0002" etc)
+
         const resultsIterator = await this.ctx.stub.getStateByPartialCompositeKey(this.name, [assetspace]);
         let method = this.getAllResults;
         let results = await method(resultsIterator, false);
@@ -66,16 +34,6 @@ class QueryUtils {
         return results;
     }
 
-
-    // ===== Example: Parameterized rich query =================================================
-    // queryKeyByOwner queries for assets based on a passed in owner.
-    // This is an example of a parameterized query accepting a single query parameter (owner).
-    // Only available on state databases that support rich query (e.g. CouchDB)
-    // =========================================================================================
-    /**
-    * queryKeyByOwner commercial paper
-    * @param {String} owner commercial paper owner
-    */
     async queryKeyByOwner(owner) {
         //  
         let self = this;
@@ -84,9 +42,7 @@ class QueryUtils {
         }
         let queryString = {};
         queryString.selector = {};
-        //  queryString.selector.docType = 'indexOwnerDoc';
         queryString.selector.owner = owner;
-        // set to (eg)  '{selector:{owner:MagnetoCorp}}'
         let method = self.getQueryResultForQueryString;
         let queryResults = await method(this.ctx, self, JSON.stringify(queryString));
         return queryResults;
@@ -110,18 +66,16 @@ class QueryUtils {
         let queryString = {};
         queryString.selector = {};
         queryString.selector.$and = [];
-        //  queryString.selector.docType = 'indexOwnerDoc';
 
         queryString.selector.$and.push({planHashCode});
         queryString.selector.$and.push({status});
         queryString.selector.$and.push({beneficiaryHashCode});
-        // set to (eg)  '{selector:{owner:MagnetoCorp}}'
         let method = self.getQueryResultForQueryString;
         let queryResults = await method(this.ctx, self, JSON.stringify(queryString));
         return queryResults;
     }
 
-    async query_main(query_args) { // must be an object {"planHash": "123"}
+    async query_main(query_args) { 
         let self = this;
         if (arguments.length < 1) {
             throw new Error('Incorrect number of arguments. Expecting owner name.');
@@ -129,18 +83,16 @@ class QueryUtils {
         let queryString = {};
         queryString.selector = {};
         queryString.selector.$and = [];
-        //  queryString.selector.docType = 'indexOwnerDoc';
         for(let key of Object.keys(query_args)){
             let _key = key;
             queryString.selector.$and.push({[key]: query_args[key]});
         }
-        // set to (eg)  '{selector:{owner:MagnetoCorp}}'
         let method = self.getQueryResultForQueryString;
         let queryResults = await method(this.ctx, self, JSON.stringify(queryString));
         return queryResults;
     }
 
-    async getState_by_key(listName, keys) { //key must be a list[] //listName is contract name!
+    async getState_by_key(listName, keys) { 
         let ledgerKey = '';
         //ledgerKey = this.ctx.stub.createCompositeKey(listName, key); //this must use composite key for sure!
         for(let key of keys){ //this shall be removed!
@@ -156,18 +108,6 @@ class QueryUtils {
         }
     }
 
-    // ===== Example: Ad hoc rich query ========================================================
-    // queryAdhoc uses a query string to perform a query for marbles..
-    // Query string matching state database syntax is passed in and executed as is.
-    // Supports ad hoc queries that can be defined at runtime by the client.
-    // If this is not desired, follow the queryKeyByOwner example for parameterized queries.
-    // Only available on state databases that support rich query (e.g. CouchDB)
-    // example passed using VS Code ext: ["{\"selector\": {\"owner\": \"MagnetoCorp\"}}"]
-    // =========================================================================================
-    /**
-    * query By AdHoc string (commercial paper)
-    * @param {String} queryString actual MangoDB query string (escaped)
-    */
     async queryByAdhoc(queryString) {
 
         if (arguments.length < 1) {
@@ -183,35 +123,14 @@ class QueryUtils {
         return queryResults;
     }
 
-    // WORKER functions are below this line: these are called by the above functions, where iterator is passed in
-
-    // =========================================================================================
-    // getQueryResultForQueryString woerk function executes the passed-in query string.
-    // Result set is built and returned as a byte array containing the JSON results.
-    // =========================================================================================
-    /**
-     * Function getQueryResultForQueryString
-     * @param {Context} ctx the transaction context
-     * @param {any}  self within scope passed in
-     * @param {String} the query string created prior to calling this fn
-    */
     async getQueryResultForQueryString(ctx, self, queryString) {
-
-        // console.log('- getQueryResultForQueryString queryString:\n' + queryString);
-
         const resultsIterator = await ctx.stub.getQueryResult(queryString);
-        // console.log("resultsIterator:", resultsIterator);
         let results = await self.getAllResults(resultsIterator, false);
 
         return results;
 
     }
 
-    /**
-     * Function getAllResults
-     * @param {resultsIterator} iterator within scope passed in
-     * @param {Boolean} isHistory query string created prior to calling this fn
-    */
     async getAllResults(iterator, isHistory) {
         let allResults = [];
         let res = { done: false, value: null };
@@ -221,7 +140,7 @@ class QueryUtils {
             let jsonRes = {};
             if (res.value && res.value.value.toString()) {
                 if (isHistory && isHistory === true) {
-                    //jsonRes.TxId = res.value.tx_id;
+                    // jsonRes.TxId = res.value.tx_id;
                     jsonRes.TxId = res.value.txId;
                     jsonRes.Timestamp = res.value.timestamp;
                     jsonRes.Timestamp = new Date((res.value.timestamp.seconds.low * 1000));
@@ -232,7 +151,6 @@ class QueryUtils {
                     } else {
                         try {
                             jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
-                            // report the commercial paper states during the asset lifecycle, just for asset history reporting
                             switch (jsonRes.Value.currentState) {
                                 case 1:
                                     jsonRes.Value.currentState = 'ISSUED';
