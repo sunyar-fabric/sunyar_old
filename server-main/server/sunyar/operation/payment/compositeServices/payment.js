@@ -107,9 +107,9 @@ const wsLoadSettelment = async (context) => {
 
 const wsCreatePayment = async (context) => {
   if (
-    !context.params.targetNgoName
-    // !context.params.planHashCode ||
-    // !context.params.beneficiaryHashCode
+    !context.params.targetNgoName ||
+    !context.params.planHashCode ||
+    !context.params.beneficiaryHashCode
   )
     throw createError(GlobalExceptions.paymentNullInputs);
   let A, C;
@@ -138,8 +138,8 @@ const wsCreatePayment = async (context) => {
       throw createError(GlobalExceptions.operation.overPayment);
     }
   }
-  let getTotalPayment = false;
-  if (!A) getTotalPayment = true;
+  // let getTotalPayment = false;
+  // if (!A) getTotalPayment = true;
   context = await createPayment(
     setContextInput(context, {
       donatorId: context.params.donatorId,

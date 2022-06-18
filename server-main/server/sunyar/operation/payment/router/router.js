@@ -69,6 +69,8 @@ sunyarRouter.post("/", async (req, res, next) => {
       followCode,
       needyId,
       targetNgoName,
+      plabnHashCode,
+      beneficiaryHashCode
     } = req.body;
 
     req.context.params = {
@@ -85,7 +87,9 @@ sunyarRouter.post("/", async (req, res, next) => {
       followCode,
       needyId,
       targetNgoName: "Org2MSP", //??? targetNgoName
-      sourceNgoName: req.charityConfig.orgMSP, //???
+      sourceNgoName: req.charityConfig.orgMSP,
+      plabnHashCode,
+      beneficiaryHashCode //???
     };
     req.context = await wsCreatePayment(req.context);
     res.json(req.context.result);
