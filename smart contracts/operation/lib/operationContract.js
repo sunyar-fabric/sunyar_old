@@ -118,8 +118,8 @@ class OperationContract extends Contract {
                 //B = min price
                 //C = all donated with
                 // let A=(B=(C=0));
-                if (amount < minPrice) return GlobalExceptions.operation.approvement.notEnough
-                if (amount + all_donated > neededPrice) return GlobalExceptions.operation.approvement.moreThanNeededPrice
+                if (amount < minPrice) return GlobalExceptions.operation.payment.notEnough
+                if (amount + all_donated > neededPrice) return GlobalExceptions.operation.payment.moreThanExpected
                 operation.setDonated();
                 break;
             case "002":
@@ -130,8 +130,8 @@ class OperationContract extends Contract {
                 console.log("*************all minPrice*************", minPrice);
                 console.log("*************all amount*************", amount);
                 amount = Number(amount);
-                if (amount + all_donations_approved > neededPrice) throw new Error(`Payment-approving is more than needed price: `, minPrice);
-                if (amount + all_donations_approved > all_donated) throw new Error(`Payment-approving is NOT enough for this beneficiary`);
+                if (amount + all_donations_approved > neededPrice) return GlobalExceptions.operation.approvement.moreThanNeededPrice
+                if (amount + all_donations_approved > all_donated) return GlobalExceptions.operation.approvement.notEnough
                 operation.setDonatedApproved();
                 break;
             case "003":
@@ -161,9 +161,9 @@ class OperationContract extends Contract {
                 for(let s_op_t of donation_operations_target){
                     all_donation_target += Number(s_op_t.Record.amount);
                 }
-                if(amount + all_settled > all_donations_approved) {throw new Error(`Payment-settle there is NOT enough approvement for this amount!`)}
-                if(amount + all_settled_target > all_donations_approved) {throw new Error(`Payment-settle there is NOT enough approvement for this amount!`)}
-                if(amount + all_settled_target > all_donation_target) {throw new Error(`Payment-settle there is NOT enough donations for this beneficiary to be settled!`)} //history??
+                if(amount + all_settled > all_donations_approved) {return GlobalExceptions.operation.settlement.notEnoughApprovement}
+                if(amount + all_settled_target > all_donations_approved) {return GlobalExceptions.operation.settlement.notEnoughApprovement }
+                if(amount + all_settled_target > all_donation_target) {return GlobalExceptions.operation.settlement.notEnoughDonation}
 
                 operation.setSettled();
                 break;
