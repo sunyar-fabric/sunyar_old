@@ -17,6 +17,7 @@ const { Op } = require("sequelize");
 const {
   GlobalExceptionsEn,
 } = require("../../../../utility/error/exceptionsEn");
+const { loadPersonal } = require("../../../../cms/um/personal/atomicServices/personal");
 
 const wsLoadPayment = async (context) => {
   for (x in context.params) {
@@ -107,7 +108,7 @@ const wsLoadSettelment = async (context) => {
 
 const wsCreatePayment = async (context) => {
   if (
-    !context.params.targetNgoName ||
+    !context.params.sourceNgoName ||
     !context.params.planHashCode ||
     !context.params.beneficiaryHashCode
   )
@@ -138,6 +139,8 @@ const wsCreatePayment = async (context) => {
       throw createError(GlobalExceptions.operation.overPayment);
     }
   }
+  const donator = await loadPersonal(setContextInput(context, {personId: context.params.donatorId}));
+  const donatorNationalCode = donator.output[0].nationalCode;
   // let getTotalPayment = false;
   // if (!A) getTotalPayment = true;
   context = await createPayment(
@@ -156,6 +159,9 @@ const wsCreatePayment = async (context) => {
       needyId: context.params.needyId,
       targetNgoName: context.params.targetNgoName,
       getTotalPayment: true, //SHALL BE ALWAYS TRUE
+      beneficiaryHashCode: context.params.beneficiaryHashCode,
+      planHashCode: context.params.planHashCode,
+      donatorNationalCode
     })
   );
   context.result = {

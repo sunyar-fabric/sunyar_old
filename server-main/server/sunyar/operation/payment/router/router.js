@@ -69,8 +69,9 @@ sunyarRouter.post("/", async (req, res, next) => {
       followCode,
       needyId,
       targetNgoName,
-      plabnHashCode,
-      beneficiaryHashCode
+      planHashCode,
+      beneficiaryHashCode,
+      sourceNgoName
     } = req.body;
 
     req.context.params = {
@@ -82,14 +83,14 @@ sunyarRouter.post("/", async (req, res, next) => {
       paymentTime,
       paymentStatus,
       sourceAccoutNumber,
-      targetAccountNumber: "12345678",
+      targetAccountNumber: "123321",
       charityAccountId,
       followCode,
       needyId,
-      targetNgoName: "Org2MSP", //??? targetNgoName
-      sourceNgoName: req.charityConfig.orgMSP,
-      plabnHashCode,
-      beneficiaryHashCode //???
+      targetNgoName: req.charityConfig.orgMSP,
+      sourceNgoName,
+      planHashCode,
+      beneficiaryHashCode 
     };
     req.context = await wsCreatePayment(req.context);
     res.json(req.context.result);

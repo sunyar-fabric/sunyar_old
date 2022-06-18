@@ -149,30 +149,30 @@ const createPayment = async (context) => {
           args
         );
         await sunyarMidManager.send(context);
-        paymentT.response = sunyarMidManager.response;
+        paymentT.trackingCode = sunyarMidManager.response.trackingCode||sunyarMidManager.response.tracking_code ;
         //TEST MIDDLEWARE
 
         //get total payments from core
-        if(context.input.getTotalPayment){
-        //TEST MIDDLEWARE
-          args = {
-            planHashCode:context.input.planHashCode,
-            status: "001",
-            beneficiaryHashCode: context.input.beneficiaryHashCode
-          }
-          context = loadMiddleware(
-            context,
-            "chaincodeName5",
-            "tx",
-            "ReadAllAssets",
-            args
-          );
-          await sunyarMidManager.send(context);
-          //calculate total price!!!
-          paymentT.totalPaymentPrice = sunyarMidManager.response.totalPaymentPrice;
-          paymentT.trackingCode = sunyarMidManager.response.trackingCode;
-        //TEST MIDDLEWARE
-        }
+        // if(context.input.getTotalPayment){
+        // //TEST MIDDLEWARE
+        //   args = {
+        //     planHashCode:context.input.planHashCode,
+        //     status: "001",
+        //     beneficiaryHashCode: context.input.beneficiaryHashCode
+        //   }
+        //   context = loadMiddleware(
+        //     context,
+        //     "chaincodeName5",
+        //     "tx",
+        //     "ReadAllAssets",
+        //     args
+        //   );
+        //   await sunyarMidManager.send(context);
+        //   //calculate total price!!!
+        //   paymentT.totalPaymentPrice = sunyarMidManager.response.totalPaymentPrice;
+        //   paymentT.trackingCode = sunyarMidManager.response.trackingCode;
+        // //TEST MIDDLEWARE
+        // }
         return paymentT;
       })
     );
