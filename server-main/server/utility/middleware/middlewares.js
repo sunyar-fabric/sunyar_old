@@ -32,6 +32,7 @@ const morteza_test = () => {
     inbound(response) {
       //  response.data.log = {time: new Date(), status:response.status, headers:response.headers, data: response.data}
       //handle errors here? don't
+      console.log("RESPONSE", response);
       return response.response.data;
     },
     outbound(message) {

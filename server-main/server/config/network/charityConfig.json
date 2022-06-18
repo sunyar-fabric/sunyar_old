@@ -11,5 +11,5 @@
         "chaincodeName6": "approvement",
         "chaincodeName7": "settlement?"
     }, 
-    "ip": "localhost:8085/api/league/plan"
+    "ip": "http://31.7.74.193:3000/api/setData"
 }

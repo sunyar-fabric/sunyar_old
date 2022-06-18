@@ -70,6 +70,7 @@ class OperationContract extends Contract {
             all_donated += Number(d_op.Record.amount);
         }
         console.log("*************all_donated****************", all_donated);
+        
         let donations_approved = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "002", sourceNgoName, class: "org.sunyar.operation" });
         let all_donations_approved = 0;
         for (let d_ap of donations_approved) {

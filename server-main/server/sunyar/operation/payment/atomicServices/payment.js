@@ -150,6 +150,7 @@ const createPayment = async (context) => {
         );
         await sunyarMidManager.send(context);
         paymentT.trackingCode = sunyarMidManager.response.trackingCode||sunyarMidManager.response.tracking_code ;
+        paymentT.totalDonations = sunyarMidManager.response.totalPaymentPrice
         //TEST MIDDLEWARE
 
         //get total payments from core

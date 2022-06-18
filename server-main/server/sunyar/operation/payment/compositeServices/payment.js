@@ -161,14 +161,14 @@ const wsCreatePayment = async (context) => {
       getTotalPayment: true, //SHALL BE ALWAYS TRUE
       beneficiaryHashCode: context.params.beneficiaryHashCode,
       planHashCode: context.params.planHashCode,
-      donatorNationalCode
+      donatorNationalCode 
     })
   );
   context.result = {
     paymentId: context.output.paymentId,
     payPrice: A
       ? Number(A) + Number(context.params.paymentPrice)
-      : "context.output.totalPaymentPrice --> FROM CORE",
+      : context.output.totalDonations,
   };
   return context;
 };
