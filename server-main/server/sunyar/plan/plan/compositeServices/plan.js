@@ -33,7 +33,7 @@ const wsCreatePlan = async (context) => {
   let parentPlanHashCode;
   if (context.params.parentPlanId) {
     const parentPlan = await loadPlan(
-      setContextInput(context, {
+      setContextInput(context, { 
         planId: context.params.parentPlanId,
       })
     );
@@ -83,10 +83,9 @@ const wsUpdatePlan = async (context) => {
     throw createError(GlobalExceptions.db.InputsNotUnique);
   }
 
-  if (isFinal == true) {
+  if (isFinal) {
     throw createError(GlobalExceptions.planIsFinal);
   }
-  if (isFinal == false) {
     context = await updatePlan(
       setContextInput(context, {
         planId: context.params.planId,
@@ -98,6 +97,7 @@ const wsUpdatePlan = async (context) => {
         fDate: context.params.fDate,
         tDate: context.params.tDate,
         neededLogin: context.params.neededLogin,
+        isFinal: context.params.neededLogin
       })
     );
     if (!context) {
@@ -116,7 +116,6 @@ const wsUpdatePlan = async (context) => {
       neededLogin: plan.neededLogin,
     };
     return context;
-  }
 };
 
 const wsLoadPlan = async (context) => {

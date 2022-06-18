@@ -69,27 +69,63 @@ const createPlan = async (context) => {
 
 const updatePlan = async (context) => {
   try {
-    let plan = await Plan.update(
-      {
-        planName: context.input.planName,
-        description: context.input.description,
-        planNature: context.input.planNature,
-        parentPlanId: context.input.parentPlanId,
-        icon: context.input.icon,
-        fDate: context.input.fDate,
-        tDate: context.input.tDate,
-        neededLogin: context.input.neededLogin,
-      },
-      { where: { planId: context.input.planId } }
-    );
+    return setContextOutput(context, await db.sequelize.transaction(async (t)=>{
+      let planT = await Plan.update(
+        {
+          planName: context.input.planName,
+          description: context.input.description,
+          planNature: context.input.planNature,
+          parentPlanId: context.input.parentPlanId,
+          icon: context.input.icon,
+          fDate: context.input.fDate,
+          tDate: context.input.tDate,
+          neededLogin: context.input.neededLogin,
+          isFinal: context.input.isFinal
+        },
+        { where: { planId: context.input.planId }, transaction:t }
+      );
+          //if is final and it was not final before
+    if(context.input.isFinal){
+      //TEST MIDDLEWARE
+      const sunyarMidManager = context.sunyarMidManager;
+      if (context.params.isFinal) {
+        const args = {
+          planName: context.input.planName,
+          ownerOrgName: context.charityConfig.orgMSP, //
+          durationDate: context.input.tDate, //[context.input.fDate, context.input.tDate]
+          parentPlanHashCode: context.input.parentPlanHashCode
+            ? context.input.parentPlanHashCode
+            : "null",
+        };
+        context = loadMiddleware(
+          context,
+          "chaincodeName2",
+          "tx",
+          "CreatePlan",
+          args
+        );
+        await sunyarMidManager.send(context);
+        Plan.update(
+          {
+            planHashCode: sunyarMidManager.response.PlanHashCode,
+          },
+          {
+            where: { planId: planT.planId },
+          }
+        );
+      }
+      planT.planHashCode = sunyarMidManager.response?.PlanHashCode;
 
-    if (plan[0] == [1]) {
+      //TEST MIDDLEWARE
+    if (planT[0] == [1]) {
       return setContextOutput(
         context,
         await Plan.findByPk(context.input.planId)
-      );
+       );
+      }
     }
-  } catch (error) {
+  }))
+} catch (error) {
     await dbErrorHandling(error, context);
   }
 };

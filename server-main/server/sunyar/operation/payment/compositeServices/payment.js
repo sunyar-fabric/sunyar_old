@@ -141,8 +141,8 @@ const wsCreatePayment = async (context) => {
   }
   const donator = await loadPersonal(setContextInput(context, {personId: context.params.donatorId}));
   const donatorNationalCode = donator.output[0].nationalCode;
-  // let getTotalPayment = false;
-  // if (!A) getTotalPayment = true;
+
+
   context = await createPayment(
     setContextInput(context, {
       donatorId: context.params.donatorId,
