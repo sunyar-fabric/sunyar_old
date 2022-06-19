@@ -9,51 +9,42 @@ class SunyarMiddlwareManager {
     this.handleIncomingMessages();
   }
 
-  async handleIncomingMessages(){
-    try{
-      await this.socket.axios.interceptors.response.use(async (response)=>{
-        const finalReponse = await this.excecuteMiddleware(this.inboundMiddleware, { response })
-        this.setResponse(finalReponse);
-        return;
+  async handleIncomingMessages() {
+    await this.socket.axios.interceptors.response.use(async (response) => {
+      const finalReponse = await this.excecuteMiddleware(this.inboundMiddleware, { response })
+      this.setResponse(finalReponse);
+      return;
     });
+
   }
-    catch(e){
-      console.log("ERROR INCOMING MESSAGE", e);
-    }
-  }   
 
   async send(context) {
-    try{
-      const {path, _function, chaincodeName, args} =  context.input.middleware;
-      const data = {function: _function, chaincodeName, args};
-      var message = { data };
-      const finalMessage = await this.excecuteMiddleware(this.outboundMiddleware, message);
-      return await this.socket.send(path,finalMessage);
-    }
-    catch(e){
-      console.log(e);
-      throw createError(GlobalExceptions.middleware)
-    }
+
+    const { path, _function, chaincodeName, args } = context.input.middleware;
+    const data = { function: _function, chaincodeName, args };
+    var message = { data };
+    const finalMessage = await this.excecuteMiddleware(this.outboundMiddleware, message);
+    return await this.socket.send(path, finalMessage);
   }
 
-  use(middleware){
-    if(middleware.inbound) this.inboundMiddleware.push(middleware.inbound);
-    if(middleware.outbound) this.outboundMiddleware.unshift(middleware.outbound);
+  use(middleware) {
+    if (middleware.inbound) this.inboundMiddleware.push(middleware.inbound);
+    if (middleware.outbound) this.outboundMiddleware.unshift(middleware.outbound);
   }
-  
-  async excecuteMiddleware(middlewares, initialMessage){
+
+  async excecuteMiddleware(middlewares, initialMessage) {
     let message = initialMessage;
-    for await (const middlewareFun of middlewares){
+    for await (const middlewareFun of middlewares) {
       message = await middlewareFun.call(this, message);
     }
     return message;
   }
 
-  setResponse(response){
+  setResponse(response) {
     this.response = response;
     // console.log("XXX-response", response);
   }
 
 }
 
-module.exports = {SunyarMiddlwareManager};
+module.exports = { SunyarMiddlwareManager };

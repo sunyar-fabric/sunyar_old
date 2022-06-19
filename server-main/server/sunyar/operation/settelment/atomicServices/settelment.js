@@ -68,8 +68,8 @@ const createSettelment = async (context) => {
           donatorNationalCode: context.input.donatorNationalCode,
         */
         let args = {  
-          planHashCode: context.input.planName,
-          beneficiaryHashCode: context.charityConfig.orgMSP,
+          planHashCode: context.input.planHashCode,
+          beneficiaryHashCode: context.input.beneficiaryHashCode,
           amout: context.input.paymentPrice,
           dateTime: context.input.paymentDate,
           sourceNgoName: context.input.sourceNgoName,
@@ -91,7 +91,9 @@ const createSettelment = async (context) => {
           "CreateOperation",
           args
         );
+
         await sunyarMidManager.send(context);
+      
         settlementT.response = sunyarMidManager.response;
         //TEST MIDDLEWARE
         return settlementT;
@@ -99,6 +101,7 @@ const createSettelment = async (context) => {
     );
   } catch (error) {
     console.log(error);
+    throw error
     await dbErrorHandling(error, context);
   }
   return context;

@@ -11,5 +11,5 @@
         "chaincodeName6": "approvement",
         "chaincodeName7": "settlement?"
     }, 
-    "ip": "http://31.7.74.193:3000/api/setData"
+    "ip": "http://185.110.190.169:3000/api/setData"
 }

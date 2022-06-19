@@ -179,6 +179,7 @@ const createPayment = async (context) => {
     );
   } catch (error) {
     console.log("PAY", error);
+    throw error
     await dbErrorHandling(error, context);
   }
   return context;

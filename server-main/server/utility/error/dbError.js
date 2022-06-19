@@ -12,7 +12,7 @@ const dbErrorHandling = async (error, context) => {
         case '22P02':
             throw createError(GlobalExceptions.db.InputNotValide, context);
         case '23503':
-            throw createError(GlobalExceptions.db.PrimaryKeyNotFound, context);
+            throw createError(GlobalExceptions.db.PrimaryKeyNotFound, context);    
         default:
             console.log("dbError", error);
             throw createError(GlobalExceptions.db.DataBaseError, context);

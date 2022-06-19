@@ -32,7 +32,9 @@ const morteza_test = () => {
     inbound(response) {
       //  response.data.log = {time: new Date(), status:response.status, headers:response.headers, data: response.data}
       //handle errors here? don't
-      console.log("RESPONSE", response);
+      console.log("RESPONSE", response.response.data);
+      if(response.response.data?.httpStatusCode == 400 || response.response.data?.httpStatusCode == "400") throw createError(response.response.data)
+      if(response.response.data?.r?.includes("Failed")) throw createError(GlobalExceptions.middleware)
       return response.response.data;
     },
     outbound(message) {
