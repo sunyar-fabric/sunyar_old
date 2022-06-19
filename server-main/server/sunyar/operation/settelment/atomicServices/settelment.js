@@ -73,16 +73,16 @@ const createSettelment = async (context) => {
           amout: context.input.paymentPrice,
           dateTime: context.input.paymentDate,
           sourceNgoName: context.input.sourceNgoName,
-          targetNgoName: '',
+          targetNgoName: context.input.targetNgoName,
           status: context.input.status,
           donatorNationalCode: ''
         };
         let chaincodeName = "";
         if (context.input.status == "002") {
-          chaincodeName = "chaincodeName6";
+          chaincodeName = "chaincodeName5";
         } else if (context.input.status == "003") {
           args.targetNgoName = context.input.targetNgoName;
-          chaincodeName = "chaincodeName7";
+          chaincodeName = "chaincodeName5";
         }
         context = loadMiddleware(
           context,
@@ -98,6 +98,7 @@ const createSettelment = async (context) => {
       })
     );
   } catch (error) {
+    console.log(error);
     await dbErrorHandling(error, context);
   }
   return context;

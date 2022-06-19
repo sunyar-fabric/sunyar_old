@@ -7,7 +7,7 @@
         "chaincodeName2": "planDefinition",
         "chaincodeName3": "beneficiaryToPlan",
         "chaincodeName4": "cashAssistanceDetail",
-        "chaincodeName5": "payment",
+        "chaincodeName5": "operation",
         "chaincodeName6": "approvement",
         "chaincodeName7": "settlement?"
     }, 

@@ -128,7 +128,7 @@ const wsCreatePayment = async (context) => {
     ) {
       A = await loadSumPayment(
         setContextInput(context, {
-          paymentStatus: "success",
+          paymentStatus: "successful",
           charityAccountId: null,
           cashAssistanceDetailId: context.params.cashAssistanceDetailId,
         })

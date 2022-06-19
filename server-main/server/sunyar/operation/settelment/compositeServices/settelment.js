@@ -41,7 +41,7 @@ const wsCreateSettelment = async (context) => {
       // A is sum of donators payments
       A = await loadSumSettelment(
         setContextInput(context, {
-          paymentStatus: "success",
+          paymentStatus: "successful",
           charityAccountId: null,
           cashAssistanceDetailId: context.params.cashAssistanceDetailId,
         })
@@ -50,13 +50,15 @@ const wsCreateSettelment = async (context) => {
       // B is sum of charities settelments
       B = await loadSumSettelment(
         setContextInput(context, {
-          paymentStatus: "success",
+          paymentStatus: "successful",
           charityAccountId: context.params.charityAccountId,
           cashAssistanceDetailId: context.params.cashAssistanceDetailId,
         })
       );
       B = B.output[0].totalPaymentPrice;
-
+      console.log("SEXY A", A);
+      console.log("SEXY B ", B );
+      console.log("SEXY amount", context.params.paymentPrice);
       if (Number(context.params.paymentPrice) + Number(B) > Number(A)) {
         throw createError(GlobalExceptions.operation.wrongPayment);
       }

@@ -18,11 +18,9 @@ const sunyarRouter = require("express").Router();
 // Operation 2 ---> SETTELMENT ----------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
+//  (req, _, next) => { authorizeRequest(req, "ACCOUNTANT", next);},
 sunyarRouter.post(
   "/",
-  (req, _, next) => {
-    authorizeRequest(req, "ACCOUNTANT", next);
-  },
   async (req, res, next) => {
     try {
       // const { error } = await validateCreatePayment(req.body)
