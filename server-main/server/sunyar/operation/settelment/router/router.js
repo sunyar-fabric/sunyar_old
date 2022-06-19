@@ -65,7 +65,7 @@ sunyarRouter.post(
         planHashCode,
         beneficiaryHashCode,
         targetNgoName,
-        status,
+        status: "002",
         sourceNgoName: req.charityConfig.orgMSP,
       };
       req.context = await wsCreateSettelment(req.context);

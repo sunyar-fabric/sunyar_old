@@ -1,7 +1,7 @@
 
 'use strict';
  
-const State = require('../../ledger-api/state.js');
+const State = require('../ledger-api/state.js');
 const opState = {
     Donated: "001",
     DonatedApproved: "002",

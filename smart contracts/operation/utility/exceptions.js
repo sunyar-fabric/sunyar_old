@@ -30,9 +30,19 @@ const GlobalExceptions = {
         message: "Beneficiary is not allocated to this plan",
         httpStatusCode: 400,
       }
-      ,InvalidNationalCode: {
+      , InvalidNationalCode: {
         code: 8,
         message: "Invalid national code",
+        httpStatusCode: 400,
+      },
+      operationFailed: { //
+        code: 8,
+        message: "Operation Failed",
+        httpStatusCode: 400,
+      },
+      cashAssistanceNotDefined: {
+        code: 8,
+        message: "Cash Assistance is not defined",
         httpStatusCode: 400,
       }
 

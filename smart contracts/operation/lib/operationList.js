@@ -1,6 +1,6 @@
 'use strict';
 
-const StateList = require('../../ledger-api/stateList.js');
+const StateList = require('../ledger-api/statelist.js');
 
 const Operation = require('./operation.js');
 

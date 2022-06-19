@@ -74,7 +74,7 @@ const wsCreateSettelment = async (context) => {
       break;
 
     case "003":
-      //***RESTIC THEM HERE IF INPUTS ARE NOT SATISFIED***
+      //***i think we don't nedd this
       break;
   }
   if (context.params.paymentTime == ":" || context.params.paymentTime == "") {
