@@ -56,9 +56,9 @@ const wsCreateSettelment = async (context) => {
         })
       );
       B = B.output[0].totalPaymentPrice;
-      console.log("SEXY A", A);
-      console.log("SEXY B ", B );
-      console.log("SEXY amount", context.params.paymentPrice);
+      console.log("Foo A", A);
+      console.log("Foo B ", B );
+      console.log("Foo amount", context.params.paymentPrice);
       if (Number(context.params.paymentPrice) + Number(B) > Number(A)) {
         throw createError(GlobalExceptions.operation.wrongPayment);
       }
