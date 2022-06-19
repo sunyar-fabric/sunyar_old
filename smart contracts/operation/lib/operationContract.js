@@ -21,7 +21,7 @@ class OperationContext extends Context {
 
 class OperationContract extends Contract {
 
-    constructor() {
+    constructor() {                   
         super('org.sunyar.operation');
     }
 
@@ -83,6 +83,7 @@ class OperationContract extends Contract {
         let operation_approved;
         let operation_settled;
         amount = Number(amount);
+        neededPrice = Number(neededPrice);
         switch (status) {
             case "001":
                 operation_donation = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, dateTime, sourceNgoName, targetNgoName, status, donerNationalCode);

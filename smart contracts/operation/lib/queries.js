@@ -11,7 +11,6 @@ class QueryUtils {
         this.supportedClasses = supported_classes;
     }
 
-
     async getAssetHistory(issuer, paperNumber) {
 
         let ledgerKey = await this.ctx.stub.createCompositeKey(this.name, [issuer, paperNumber]);
