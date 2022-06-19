@@ -56,8 +56,8 @@ const wsCreateSettelment = async (context) => {
         })
       );
       B = B.output[0].totalPaymentPrice;
-      console.log("Foo A", A);
-      console.log("Foo B ", B );
+      console.log("B is sum of charities settelments", B);
+      console.log("A is sum of donators payments", A );
       console.log("Foo amount", context.params.paymentPrice);
       if (Number(context.params.paymentPrice) + Number(B) > Number(A)) {
         throw createError(GlobalExceptions.operation.wrongPayment);
