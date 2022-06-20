@@ -1,5 +1,5 @@
 'use strict';
-
+//fffff
 const { Contract, Context } = require('fabric-contract-api');
 
 const Operation = require('./operation.js');
