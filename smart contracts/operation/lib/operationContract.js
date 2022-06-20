@@ -66,6 +66,8 @@ class OperationContract extends Contract {
         if (!cash_assistance || cash_assistance.length == 0) return GlobalExceptions.operation.common.cashAssistanceNotDefined
         let minPrice = cash_assistance[0].Record.minPrice;
         let neededPrice = cash_assistance[0].Record.neededPrice;
+        console.log("*************minPrice*************", minPrice);
+        console.log("*************amount*************", amount);
         let donated_operations = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "001" });
         let all_donated = 0;
         for (let d_op of donated_operations) {
@@ -102,20 +104,25 @@ class OperationContract extends Contract {
                 //create settlement for each organization
                 //subtract settlement from approvement amount 
                 //continue creating settlement for other organizations if approvement is more than zero  
+                
+                //approvement
                 operation_approved = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, dateTime, sourceNgoName, "", status, "");
-                console.log("*************minPrice*************", minPrice);
-                console.log("*************amount*************", amount);
                 if (amount + all_donations_approved > neededPrice) return GlobalExceptions.operation.approvement.moreThanNeededPrice
                 if (amount + all_donations_approved > all_donated) return GlobalExceptions.operation.approvement.notEnough
                 operation_approved.totalPaymentPrice = all_donated;
                 operation_approved.setDonatedApproved();
+                operation_approved.setOwnerMSP(mspid);
+                operation_approved.setOwner(sourceNgoName);
+                operation_approved.trackingCode = v4();
+                await ctx.operationList.addOperation(operation_approved);
+                //settlement
                 let settled_operations = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "003", sourceNgoName });
                 let all_settled = 0;
                 for (let s_op of settled_operations) {
                     all_settled += Number(s_op.Record.amount);
                 }
                 console.log("*************all_settled*************", all_settled);
-                //get orgs
+                if (all_settled > all_donations_approved) return GlobalExceptions.operation.settlement.notEnoughApprovement
                 const donated_operations_by_org = donated_operations.reduce(function (acc, obj) {
                     obj = obj.Record;
                     let key = obj["ownerOrgName"];
@@ -125,7 +132,22 @@ class OperationContract extends Contract {
                     acc[key].push(obj);
                     return acc
                 }, {});
-                const all_orgs = Object.keys(donated_operations_by_org);
+                let all_orgs = Object.keys(donated_operations_by_org); //all_orgs[] and ownerOrgName[] are same
+                console.log("*************all_orgs*************", all_orgs);
+                //find orgs with lest donations
+                const list_of_orgs_donations = [];
+                for(let org of all_orgs){
+                    // let _donations_target = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "001", sourceNgoName, targetNgoName: org, class: "org.sunyar.operation" });
+                    let _all_donations_target = 0;
+                    for (let _d_target of donated_operations_by_org[org]) {
+                        _all_donations_target += Number(_d_target.Record.amount);
+                    }
+                    list_of_orgs_donations.push({donation: _all_donations_target, org})
+                }
+                list_of_orgs_donations.sort(function(a, b){
+                    return !(a.donation - b.donation)
+                })
+                all_orgs = list_of_orgs_donations
                 for (let org of all_orgs) {
                     let donations_settled_target = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "003", sourceNgoName, targetNgoName: org, class: "org.sunyar.operation" });
                     let all_settled_target = 0;
@@ -138,26 +160,19 @@ class OperationContract extends Contract {
                         all_donations_target += Number(d_target.Record.amount);
                     }
                     console.log("*************all_donations_target*************", all_donations_target);
-                    const remain_for_settlement_org = all_donations_target - all_settled_target;
-                    
-                    if (remain_for_settlement_org < 0) { }
-                    if (all_settled > all_donations_approved)  return GlobalExceptions.operation.settlement.notEnoughApprovement 
-                    if (all_settled_target > all_donations_approved) return GlobalExceptions.operation.settlement.notEnoughApprovement 
-                    if (amount + all_settled_target > all_donation_target) return GlobalExceptions.operation.settlement.notEnoughDonation 
-                    
-                    operation_settled = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, Number(dateTime) + 1, sourceNgoName, targetNgoName, "003", "");
-                    amount = amount - remain_for_settlement_org
-                    //&&&&&&&&&&&&&&&&
-                    // let settled_operations_target = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "003", sourceNgoName, targetNgoName });
-                    // let all_settled_target = 0;
-                    // for (let s_op_t of settled_operations_target) {
-                    //     all_settled_target += Number(s_op_t.Record.amount);
-                    // }
-                    // console.log("*************all_settled_target*************", all_settled_target);
-                    // all_donations_approved += amount; 
+                    const remain_for_settlement_target = all_donations_target - all_settled_target;
 
-    
+                    if (remain_for_settlement_target < 0) { }
+                    if (all_settled_target > all_donations_approved) return GlobalExceptions.operation.settlement.notEnoughApprovement
+                    if (amount + all_settled_target > all_donations_target) return GlobalExceptions.operation.settlement.notEnoughDonation
+
+                    operation_settled = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, Number(dateTime) + 1, sourceNgoName, org, "003", "");
+                    amount = amount - remain_for_settlement_target
                     operation_settled.setSettled();
+                    operation_settled.setOwner(org);
+                    operation_settled.setOwnerMSP(mspid);
+                    await ctx.operationList.addOperation(operation_settled);
+                    operation_settled.trackingCode = v4();
                 }
 
                 all_donations_approved;
@@ -174,15 +189,8 @@ class OperationContract extends Contract {
             operation_donation.trackingCode = v4();
             return operation_donation;
         }
-        else if (operation_approved && operation_settled) {
-            operation_approved.setOwnerMSP(mspid);
-            operation_approved.setOwner(sourceNgoName);
-            operation_settled.setOwnerMSP(mspid);
-            operation_settled.setOwner(sourceNgoName);
-            await ctx.operationList.addOperation(operation_approved);
-            await ctx.operationList.addOperation(operation_settled);
-            operation_approved.trackingCode = v4();
-            operation_settled.trackingCode = v4();
+        else if (operation_approved) {
+
             return operation_approved;
         }
         else {
