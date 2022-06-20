@@ -13,10 +13,7 @@ class OperationContext extends Context {
     constructor() {
         super();
         this.operationList = new OperationList(this);
-        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
     }
-
-
 }
 
 class OperationContract extends Contract {
