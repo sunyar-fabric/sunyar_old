@@ -139,37 +139,42 @@ class OperationContract extends Contract {
                     for (let _d_target of donated_operations_by_org[org]) {
                         _all_donations_target += Number(_d_target.Record.amount);
                     }
-                    list_of_orgs_donations.push({donation: _all_donations_target, org})
+                    list_of_orgs_donations.push({donation: _all_donations_target, orgname:org})
                 }
                 list_of_orgs_donations.sort(function(a, b){
                     return !(a.donation - b.donation)
                 })
-                all_orgs = list_of_orgs_donations
+                all_orgs = list_of_orgs_donations;
+                //all_orgs = 
                 for (let org of all_orgs) {
-                    let donations_settled_target = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "003", sourceNgoName, targetNgoName: org, class: "org.sunyar.operation" });
+                    let donations_settled_target = await query.query_main({ planHashCode, beneficiaryHashCode, currentState: "003", sourceNgoName, targetNgoName: org.orgname, class: "org.sunyar.operation" });
                     let all_settled_target = 0;
                     for (let d_s_org of donations_settled_target) {
                         all_settled_target += Number(d_s_org.Record.amount);
                     }
-                    console.log("*************all_settled_target*************", all_settled_target);
-                    let all_donations_target = 0;
-                    for (let d_target of donated_operations_by_org[org]) {
-                        all_donations_target += Number(d_target.Record.amount);
-                    }
-                    console.log("*************all_donations_target*************", all_donations_target);
-                    const remain_for_settlement_target = all_donations_target - all_settled_target;
+                    console.log('*************all_settled_target org[${org.orgname}]*************', all_settled_target);
+                    //let all_donations_target = 0;
+                    //for (let d_target of donated_operations_by_org[org.orgname]) {
+                      //  all_donations_target += Number(d_target.Record.amount);
+                    //}
+                    console.log("*************all_donations_target*************", org.donation);
+                    const remain_for_settlement_target = org.donation - all_settled_target;
 
-                    if (remain_for_settlement_target < 0) { }
-                    if (all_settled_target > all_donations_approved) return GlobalExceptions.operation.settlement.notEnoughApprovement
-                    if (amount + all_settled_target > all_donations_target) return GlobalExceptions.operation.settlement.notEnoughDonation
-
-                    operation_settled = Operation.createInstance(planHashCode, beneficiaryHashCode, amount, Number(dateTime) + 1, sourceNgoName, org, "003", "");
-                    amount = amount - remain_for_settlement_target
+                    if (remain_for_settlement_target < 0) { 
+                    //there is no need to create settle log this 
+                     console.log('*****************org ${org.orgname} is settled totally********************');
+                    continue;
+}
+                    if (org.donation> all_donations_approved) return GlobalExceptions.operation.settlement.notEnoughApprovement
+                    //if (amount + all_settled_target > all_donations_target) return GlobalExceptions.operation.settlement.notEnoughDonation
+                    amount = amount - remain_for_settlement_target;
+                    operation_settled = Operation.createInstance(planHashCode, beneficiaryHashCode, remain_for_settlement_target, Number(dateTime) + 1, sourceNgoName, targetNGOName:org.orgname, "003", "");
                     operation_settled.setSettled();
                     operation_settled.setOwner(org);
                     operation_settled.setOwnerMSP(mspid);
                     await ctx.operationList.addOperation(operation_settled);
                     operation_settled.trackingCode = v4();
+                    if(amount <= 0) return operation_approved;
                 }
 
                 all_donations_approved;
