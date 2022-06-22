@@ -170,7 +170,7 @@ class OperationContract extends Contract {
                     amount = amount - remain_for_settlement_target;
                     operation_settled = Operation.createInstance(planHashCode, beneficiaryHashCode, remain_for_settlement_target, Number(dateTime) + 1, sourceNgoName, targetNGOName:org.orgname, "003", "");
                     operation_settled.setSettled();
-                    operation_settled.setOwner(org);
+                    operation_settled.setOwner(org.orgname);
                     operation_settled.setOwnerMSP(mspid);
                     await ctx.operationList.addOperation(operation_settled);
                     operation_settled.trackingCode = v4();
